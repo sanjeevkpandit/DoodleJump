@@ -126,11 +126,237 @@
     };
 
 
+    var Spritesheet = function () {
+
+        var that = this;
+
+        var coordinates = [
+            {action: 'leftFace', coOrd: {x: 0, y: -202, w: 0, h: 0}},
+            {action: 'leftJump', coOrd: {x: 0, y: -372, w: 0, h: 0}},
+            {action: 'rightFace', coOrd: {x: -30, y: -122, w: 0, h: 0}},
+            {action: 'rightJump', coOrd: {x: -30, y: -290, w: 0, h: 0}},
+            {action: 'springDown', coOrd: {x: 0, y: -470, w: 44, h: 27}},
+            {action: 'springUp', coOrd: {x: 0, y: -502, w: 44, h: 51}},
+            {action: 'greenBlock', coOrd: {x: -2, y: -3, w: 100, h: 26}},
+            {action: 'redBlock', coOrd: {x: -2, y: -33, w: 100, h: 26}},
+            {action: 'blueBlock', coOrd: {x: -2, y: -63, w: 100, h: 26}},
+            {action: 'whiteBlock', coOrd: {x: -2, y: -93, w: 100, h: 26}},
+            {action: 'greenVillain', coOrd: {x: -175, y: -101, w: 82, h: 52}}
+        ];
+
+        this.getSpriteCoordinates = function (command) {
+//            var coOrds;
+//            if (command === 'moveLeft') {
+//                coOrds = findCoOrd('leftFace');
+//            } else if (command === 'moveRight') {
+//                coOrds = findCoOrd('rightFace');
+//            } else if (command === 'leftJump') {
+//                coOrds = findCoOrd('leftJump');
+//            } else if (command === 'rightJump') {
+//                coOrds = findCoOrd('rightJump');
+//            } else if (command === 'springDown') {
+//                coOrds = findCoOrd('springDown');
+//            } else if (command === 'springUp') {
+//                coOrds = findCoOrd('springUp');
+//            }
+
+            return findCoOrd(command);
+        };
+
+        var findCoOrd = function (command) {
+            for (var i = 0; i < coordinates.length; i++) {
+                if (coordinates[i].action === command) {
+                    return coordinates[i].coOrd;
+                }
+            }
+        };
+    };
+
+
+    var Sprite = function (command) {
+        this.coOrds = new Spritesheet().getSpriteCoordinates(command);
+
+        this.element = document.createElement('div');
+
+        this.element.style.width = this.coOrds.w + 'px';
+        this.element.style.height = this.coOrds.h + 'px';
+        this.element.style.position = 'absolute';
+
+        this.element.style.backgroundImage = 'url("images/doodle-sprites.png")';
+        this.element.style.backgroundPositionX = this.coOrds.x + 'px';
+        this.element.style.backgroundPositionY = this.coOrds.y + 'px';
+
+    };
+
+    var Platform = function (_width, _height, _xPos, _yPos, _type) {
+
+        var that = this;
+
+        this.width = _width;
+        this.height = _height;
+
+        this.type = _type;
+        //this.isCollided = false;
+
+        this.xPos = _xPos;
+        this.yPos = _yPos;
+
+        this.element = document.createElement('div');
+
+        this.element.style.width = this.width + 'px';
+        this.element.style.height = this.height + 'px';
+        this.element.style.position = 'absolute';
+        this.element.style.left = this.xPos + 'px';
+        this.element.style.top = this.yPos + 'px';
+
+        if (this.type === 'standard') {            
+            
+            setSprite('greenBlock');            
+            
+        } else if (this.type === 'spring') {
+            
+            setSprite('blueBlock');
+            
+            setSpringSprite('springDown');
+        }
+        
+        function setSprite(command){
+            
+            var coOrds = new Spritesheet().getSpriteCoordinates(command);
+            that.element.style.backgroundImage = 'url("images/doodle-sprites.png")';
+            that.element.style.backgroundRepeat = 'no-repeat';
+            that.element.style.backgroundPositionX = coOrds.x + 'px';
+            that.element.style.backgroundPositionY = coOrds.y + 'px';
+        }
+        
+        function setSpringSprite(command) {
+            var sprite = new Sprite(command);
+
+            sprite.element.style.left = sprite.coOrds.w / 2 + 'px';
+            sprite.element.style.top = -sprite.coOrds.h + 'px';
+
+            that.element.appendChild(sprite.element);
+        };
+
+        this.changeSpringSprite = function () {
+            if (that.type === 'spring') {
+                that.element.removeChild(that.element.childNodes[0]);
+                setSpringSprite('springUp');
+            }
+        };
+
+        var move = function (speed) {
+            that.yPos += speed;
+        };
+
+        var render = function () {
+            that.element.style.top = that.yPos + 'px';
+        };
+
+        this.updateFrame = function (speed) {
+            move(speed);
+            render();
+        };
+    };
+
+
+    var ExtraClass = function () {
+
+        var collision = new Collision();
+
+        this.getRandomCoordinates = function (prevX, prevY) {
+
+            var randomXValue = Math.floor(Math.random() * 4);
+
+            var randomYValue = Math.floor(Math.random() * 3) + 1;
+
+            var newX = randomXValue * 100;
+            var newY = randomYValue * -50;
+
+            if ((newY <= (prevY - 50)) && (newY > (prevY - 350))) {
+                return {xCord: newX, yCord: newY};
+            }
+
+            return null;
+        };
+
+        this.getRandomCoordinatesForVillain = function (prevX, prevY) {
+
+            var randomXValue = Math.floor(Math.random() * 4);
+
+            var randomYValue = Math.floor(Math.random() * 3) + 1;
+
+            var newX = randomXValue * 100;
+            var newY = randomYValue * -50;
+
+            return {xCord: newX, yCord: newY};
+
+        };
+
+        this.checkCollisionOfPlayerPlatforms = function (player, platforms) {
+            for (var i = 0; i < platforms.length; i++) {
+                if (collision.checkTopCollision(player.animation, platforms[i])) {
+
+                    player.animation.resetYValueAfterCollision(platforms[i].yPos);
+                    player.groundLevel = platforms[i].yPos;
+                    player.yVelocity = 0;
+                    player.platformType = platforms[i].type;
+                    platforms[i].changeSpringSprite();
+
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        this.checkCollisionOfPlayerVillains = function (player, villains) {
+            for (var i = 0; i < villains.length; i++) {
+                if (collision.checkCollision(player.animation, villains[i])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    };
+
+
+    var Score = function () {
+
+        var that = this;
+
+        this.element = document.createElement('div');
+        this.element.style.position = 'absolute';
+        this.element.style.zIndex = 3;
+        this.element.style.width = '100px';
+        this.element.style.height = '20px';
+        this.element.style.top = '0px';
+        this.element.style.right = '0px';
+        this.element.style.textAlign = 'right';
+        this.element.style.backgroundColor = 'grey';
+        this.element.style.color = 'white';
+
+        this.score = 0;
+
+        var render = function () {
+            that.element.innerHTML = 'Score: ' + that.score;
+        };
+
+        this.updateScore = function () {
+            that.score += 1;
+
+            render();
+        };
+    };
+
+
     var Player = function () {
         var that = this;
 
-        this.width = 40;
-        this.height = 50;
+        this.width = 50;
+        this.height = 78;
+
+        var innerElementWidth = 80;
+        var innerElementHeight = 78;
 
         var screenWidth = 600;
         var screenHeight = 600;
@@ -141,20 +367,41 @@
         this.xVelocity = 0;
         this.yVelocity = 0;
 
-        this.speed = 4;
+        this.spriteCord = {};
 
-        var color = 'green';
+        this.speed = 4;
+        this.ySpeed = -25;
+        this.direction = 'right';
+        this.platformType = 'standard';
+
+        //var color = 'green';
 
         this.element = document.createElement('div');
-
         this.element.style.width = this.width + 'px';
         this.element.style.height = this.height + 'px';
         this.element.style.position = 'absolute';
         this.element.style.top = this.yPos + 'px';
         this.element.style.left = this.xPos + 'px';
-        this.element.style.backgroundColor = color;
+        this.element.style.zIndex = '2';
+
+
+        var innerElement = document.createElement('div');
+
+        innerElement.style.width = innerElementWidth + 'px';
+        innerElement.style.height = innerElementHeight + 'px';
+        //this.innerElement.style.position = 'absolute';
+        //this.innerElement.style.top = this.yPos + 'px';
+        //this.innerElement.style.left = this.xPos + 'px';
+        innerElement.style.backgroundImage = 'url("images/doodle-sprites.png")';
+        //        this.element.style.backgroundColor = color;
+
+        this.element.appendChild(innerElement);
 
         this.animation = new Animation(this);
+        this.spriteSheet = new Spritesheet();
+
+        this.spriteCord = this.spriteSheet.getSpriteCoordinates('rightFace');
+        console.log(this.spriteCord);
 
         this.onGround = true;
         this.isFalling = true;
@@ -162,7 +409,11 @@
         this.gravity = 0.5;
 
         var move = function () {
-            
+            that.ySpeed = -25;
+            if (that.platformType === 'spring') {
+                that.ySpeed = -100;
+            }
+
             startJump();
 
             window.onkeypress = function (event) {
@@ -170,10 +421,12 @@
                 var keyCode = event.which || event.keyCode;
 
                 if (keyCode === 97) {
-                    moveInDirection('left');
+                    that.xVelocity = -that.speed;
+                    that.direction = 'left';
                 }
                 if (keyCode === 100) {
-                    moveInDirection('right');
+                    that.xVelocity = that.speed;
+                    that.direction = 'right';
                 }
                 if (keyCode === 119) {
                     startJump();
@@ -188,17 +441,40 @@
 
         };
 
-        var moveInDirection = function (direction) {
-            that.animation.move(direction);
+        var render = function () {
+            innerElement.style.backgroundPositionX = that.spriteCord.x + 'px';
+            innerElement.style.backgroundPositionY = that.spriteCord.y + 'px';
+        };
+
+        var updateDirection = function () {
+            if (that.direction === 'left') {
+                innerElement.style.marginLeft = '-30px';
+                that.spriteCord = that.spriteSheet.getSpriteCoordinates('leftFace');
+            } else if (that.direction === 'right') {
+                innerElement.style.marginLeft = '0px';
+                that.spriteCord = that.spriteSheet.getSpriteCoordinates('rightFace');
+            }
+        };
+
+        this.updateSpriteDuringCollision = function () {
+            if (that.direction === 'left') {
+                innerElement.style.marginLeft = '-30px';
+                that.spriteCord = that.spriteSheet.getSpriteCoordinates('leftJump');
+            } else if (that.direction === 'right') {
+                innerElement.style.marginLeft = '0px';
+                that.spriteCord = that.spriteSheet.getSpriteCoordinates('rightJump');
+            }
         };
 
         var startJump = function () {
-
             if (that.onGround) {
-                that.yVelocity = -20;
+                that.yVelocity = that.ySpeed;
                 that.groundLevel = 600;
                 that.onGround = false;
                 that.isFalling = false;
+                that.updateSpriteDuringCollision();
+            } else {
+                updateDirection();
             }
         };
 
@@ -223,8 +499,8 @@
         };
 
         var endJump = function () {
-            if (that.yVelocity < -10) {
-                that.yVelocity = -10;
+            if (that.yVelocity < that.ySpeed / 2) {
+                that.yVelocity = that.ySpeed / 2;
             }
         };
 
@@ -245,14 +521,18 @@
                 that.animation.resetYValueAfterCollision(that.groundLevel);
                 that.onGround = true;
             }
-            if (((that.animation.xPos) < 0) || ((that.animation.xPos + that.animation.width) > 600)) {
-                that.animation.resetXValue();
+            if (((that.animation.xPos) <= -40)) {
+                that.animation.xPos = 360;
+            }
+            if (that.animation.xPos >= 400) {
+                that.animation.xPos = 0;
             }
             if (that.onGround === true) {
                 that.xVelocity = 0;
             }
 
             move();
+            render();
             that.animation.render();
 
         };
@@ -260,26 +540,43 @@
     };
 
 
-    var Platform = function (_width, _height, _xPos, _yPos) {
-
+    var Villain = function (_width, _height, _xPos, _yPos, _type) {
         var that = this;
 
         this.width = _width;
         this.height = _height;
-
+        
         this.xPos = _xPos;
         this.yPos = _yPos;
+        
+        this.type = _type;
+
+        this.speed = 4;
+
 
         this.element = document.createElement('div');
 
         this.element.style.width = this.width + 'px';
         this.element.style.height = this.height + 'px';
         this.element.style.position = 'absolute';
-        this.element.style.left = this.xPos + 'px';
         this.element.style.top = this.yPos + 'px';
-        this.element.style.backgroundColor = 'black';
-        this.element.style.border = '2px solid black';
+        this.element.style.left = this.xPos + 'px';
 
+        if (this.type === 'greenVillain') {
+            //this.element.style.backgroundColor = 'green';
+            setSprite('greenVillain');
+        } else if (this.type === 'blueVillain') {
+            this.element.style.backgroundColor = 'blue';
+        }
+        
+        function setSprite(command){
+            
+            var coOrds = new Spritesheet().getSpriteCoordinates(command);
+            that.element.style.backgroundImage = 'url("images/doodle-sprites-2.png")';
+            that.element.style.backgroundRepeat = 'no-repeat';
+            that.element.style.backgroundPositionX = coOrds.x + 'px';
+            that.element.style.backgroundPositionY = coOrds.y + 'px';
+        }
 
         var move = function (speed) {
             that.yPos += speed;
@@ -303,24 +600,28 @@
         var interval = 20;
 
         var gameDiv = _gameDiv;
-        this.width = 600;
+        this.width = 400;
         this.height = 600;
 
         var background = new Background();
         var player = new Player();
-        var platforms = [];
-        var collision = new Collision();
+        var extraClass = new ExtraClass();
+        var score = new Score();
 
-        //var canCreateNewPlatforms = false;
+        var platforms = [];
+        var villains = [];
+
+        var isGameOver = false;
 
 
         var createPlatform = function (width, height, xPos, yPos) {
-            var platform = new Platform(width, height, xPos, yPos);
+            var platform = new Platform(width, height, xPos, yPos, 'standard');
+            if (Math.random() < 0.05) {
+                platform = new Platform(width, height, xPos, yPos, 'spring');
+            }
             gameDiv.appendChild(platform.element);
 
             platforms.push(platform);
-
-            console.log('Create new platform: ', width, height, xPos, yPos);
         };
 
         var destroyPlatform = function (platformIndex) {
@@ -329,12 +630,26 @@
         };
 
 
+        var createVillain = function (width, height, xPos, yPos) {
+            var villain = new Villain(width, height, xPos, yPos, 'greenVillain');
+            gameDiv.appendChild(villain.element);
+
+            villains.push(villain);
+        };
+
+        var destroyVillain = function (villainIndex) {
+            villains[villainIndex].element.remove();
+            villains.splice(villainIndex, 1);
+        };
+
         var createPlatformsTemp = function () {
             platforms = [
-                new Platform(200, 10, 200, 500),
-                new Platform(200, 10, 200, 400),
-                new Platform(200, 10, 200, 300),
-                new Platform(200, 10, 200, 200)
+                new Platform(100, 26, 200, 500, 'standard'),
+                new Platform(100, 26, 200, 400, 'standard'),
+                new Platform(100, 26, 200, 300, 'standard'),
+                new Platform(100, 26, 200, 200, 'standard'),
+                new Platform(100, 26, 200, 100, 'standard'),
+                new Platform(100, 26, 200, 0, 'standard')
             ];
 
             for (var i = 0; i < platforms.length; i++) {
@@ -343,61 +658,59 @@
 
         };
 
-        var checkCollision = function () {
-            for (var i = 0; i < platforms.length; i++) {
-                if (collision.checkTopCollision(player.animation, platforms[i])) {
-
-                    player.animation.resetYValueAfterCollision(platforms[i].yPos);
-                    player.groundLevel = platforms[i].yPos;
-                    player.yVelocity = 0;
-
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        var getRandomCoordinates = function (prevX, prevY) {
-            
-            var randomXValue = Math.floor(Math.random() * 3);
-            
-            var randomYValue = Math.floor(Math.random() * 3) + 1;
-
-            var newX = randomXValue*100;
-            var newY = randomYValue*50;
-            
-            if ((newY <= (prevY - 50)) && (newY > (prevY - 300))) {
-                //newY = prevY - newY;
-                
-                return {xCord: newX, yCord: newY};
-            }
-            
-            return null;
-        };
-
         var updatePlatforms = function () {
 
             var prevX = platforms[platforms.length - 1].xPos;
             var prevY = platforms[platforms.length - 1].yPos;
 
-            var coOrd = getRandomCoordinates(prevX, prevY);
-            
+            var coOrd = extraClass.getRandomCoordinates(prevX, prevY);
+
             if (coOrd !== null) {
-                createPlatform(200, 10, coOrd.xCord, coOrd.yCord);
+                createPlatform(100, 26, coOrd.xCord, coOrd.yCord);
+            }
+        };
+
+        var updateVillains = function () {
+
+            var randNum = Math.random();
+            if (randNum < 0.01) {
+
+                var coOrd;
+
+                if (villains.length === 0) {
+                    coOrd = extraClass.getRandomCoordinatesForVillain(100, 10);
+                } else {
+                    var prevX = villains[villains.length - 1].xPos;
+                    var prevY = villains[villains.length - 1].yPos;
+
+                    coOrd = extraClass.getRandomCoordinatesForVillain(prevX, prevY);
+                }
+
+                if (coOrd !== null) {
+                    createVillain(100, 50, coOrd.xCord, coOrd.yCord - 50);
+                    console.log('Random Number: ', randNum);
+                    console.log('villain created', coOrd.xCord, coOrd.yCord - 50);
+                }
             }
         };
 
         var updateBackground = function () {
 
-            if (player.yPos < 400) {
-                
-                
-                //debugger;
-                
-                
+            if (player.yPos < 300) {
+
+                player.animation.yPos = 300;
+
                 //update background
-                console.log('updating background');
                 background.updateFrame();
+
+                //update villains
+                for (var i = 0; i < villains.length; i++) {
+                    if (villains[i].yPos > 600) {
+                        destroyVillain(i);
+                    } else {
+                        villains[i].updateFrame(Math.abs(player.yVelocity));
+                    }
+                }
 
                 //update blocks
                 for (var i = 0; i < platforms.length; i++) {
@@ -410,7 +723,14 @@
 
                 updatePlatforms();
 
+                updateVillains();
+
             }
+        };
+
+        var gameOver = function () {
+            console.log('Game Over');
+            alert('Game Over\nScore: ' + score.score);
         };
 
 
@@ -424,26 +744,31 @@
 
             gameDiv.appendChild(background.element);
 
+            gameDiv.appendChild(score.element);
+
             createPlatformsTemp();
 
             gameDiv.appendChild(player.element);
         };
 
-        var loopCounter = 0;
+        //var loopCounter = 0;
 
         var gameLoop = function () {
 
-            loopCounter++;
+            if (!isGameOver) {
+                //loopCounter++;
 
-            //background.updateFrame();
-            player.updateFrame();
-
-            updateBackground();
-
-            if (player.isFalling) {
-                if (!checkCollision()) {
-                    player.groundLevel = 600;
+                if (player.isFalling) {
+                    if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
+                        player.groundLevel = 600;
+                    }
                 }
+
+                score.updateScore();
+
+                updateBackground();
+
+                player.updateFrame();
             }
 
         };
