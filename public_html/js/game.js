@@ -10,6 +10,9 @@
     'use strict';
 
 
+    var SCREEN_WIDTH = 400;
+    var SCREEN_HEIGHT = 600;
+
     var Background = function () {
 
         var that = this;
@@ -141,7 +144,8 @@
             {action: 'redBlock', coOrd: {x: -2, y: -33, w: 100, h: 26}},
             {action: 'blueBlock', coOrd: {x: -2, y: -63, w: 100, h: 26}},
             {action: 'whiteBlock', coOrd: {x: -2, y: -93, w: 100, h: 26}},
-            {action: 'greenVillain', coOrd: {x: -175, y: -101, w: 82, h: 52}}
+            {action: 'greenVillain', coOrd: {x: -175, y: -101, w: 82, h: 52}},
+            {action: 'redVillain', coOrd: {x: 0, y: -104, w: 47, h: 35}}
         ];
 
         this.getSpriteCoordinates = function (command) {
@@ -188,6 +192,7 @@
 
     };
 
+
     var Platform = function (_width, _height, _xPos, _yPos, _type) {
 
         var that = this;
@@ -196,7 +201,7 @@
         this.height = _height;
 
         this.type = _type;
-        //this.isCollided = false;
+        var xVelocity = 1;
 
         this.xPos = _xPos;
         this.yPos = _yPos;
@@ -209,26 +214,31 @@
         this.element.style.left = this.xPos + 'px';
         this.element.style.top = this.yPos + 'px';
 
-        if (this.type === 'standard') {            
-            
-            setSprite('greenBlock');            
-            
+        if (this.type === 'standard') {
+
+            setSprite('greenBlock');
+
         } else if (this.type === 'spring') {
-            
+
             setSprite('blueBlock');
-            
+
             setSpringSprite('springDown');
+
+        } else if (this.type === 'moving') {
+
+            setSprite('whiteBlock');
+
         }
-        
-        function setSprite(command){
-            
+
+        function setSprite(command) {
+
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
             that.element.style.backgroundImage = 'url("images/doodle-sprites.png")';
             that.element.style.backgroundRepeat = 'no-repeat';
             that.element.style.backgroundPositionX = coOrds.x + 'px';
             that.element.style.backgroundPositionY = coOrds.y + 'px';
         }
-        
+
         function setSpringSprite(command) {
             var sprite = new Sprite(command);
 
@@ -236,7 +246,8 @@
             sprite.element.style.top = -sprite.coOrds.h + 'px';
 
             that.element.appendChild(sprite.element);
-        };
+        }
+        ;
 
         this.changeSpringSprite = function () {
             if (that.type === 'spring') {
@@ -249,12 +260,26 @@
             that.yPos += speed;
         };
 
+        var autoMove = function () {
+            if (that.xPos < 0 || that.xPos + that.width > SCREEN_WIDTH) {
+                xVelocity *= -1;
+            }
+
+            that.xPos += xVelocity;
+        };
+
         var render = function () {
+            that.element.style.left = that.xPos + 'px';
             that.element.style.top = that.yPos + 'px';
         };
 
         this.updateFrame = function (speed) {
             move(speed);
+            render();
+        };
+
+        this.updateFrameX = function () {
+            autoMove();
             render();
         };
     };
@@ -312,6 +337,18 @@
         this.checkCollisionOfPlayerVillains = function (player, villains) {
             for (var i = 0; i < villains.length; i++) {
                 if (collision.checkCollision(player.animation, villains[i])) {
+                    if (collision.checkTopCollision(player.animation, villains[i])) {
+                        return i;
+                    }
+                    return 'collided';
+                }
+            }
+            return null;
+        };
+
+        this.checkTopCollisionOfPlayerVillains = function (player, villains) {
+            for (var i = 0; i < villains.length; i++) {
+                if (collision.checkTopCollision(player.animation, villains[i])) {
                     return true;
                 }
             }
@@ -414,7 +451,7 @@
                 that.ySpeed = -100;
             }
 
-            startJump();
+            that.startJump();
 
             window.onkeypress = function (event) {
 
@@ -429,7 +466,7 @@
                     that.direction = 'right';
                 }
                 if (keyCode === 119) {
-                    startJump();
+                    that.startJump();
                 }
                 if ((keyCode === 113)) {
                     startLeftJump();
@@ -466,7 +503,7 @@
             }
         };
 
-        var startJump = function () {
+        this.startJump = function () {
             if (that.onGround) {
                 that.yVelocity = that.ySpeed;
                 that.groundLevel = 600;
@@ -540,56 +577,105 @@
     };
 
 
-    var Villain = function (_width, _height, _xPos, _yPos, _type) {
+    var Villain = function (_xPos, _yPos, _type) {
         var that = this;
 
-        this.width = _width;
-        this.height = _height;
-        
+        this.width = 100;
+        this.height = 20;
+
         this.xPos = _xPos;
         this.yPos = _yPos;
-        
+
         this.type = _type;
 
         this.speed = 4;
 
+        this.moveDown = false;
+
+        this.isDead = false;
+
+        var xVelocity = 1;
+        var yVelocity = 8;
+
 
         this.element = document.createElement('div');
 
-        this.element.style.width = this.width + 'px';
-        this.element.style.height = this.height + 'px';
         this.element.style.position = 'absolute';
         this.element.style.top = this.yPos + 'px';
         this.element.style.left = this.xPos + 'px';
 
         if (this.type === 'greenVillain') {
-            //this.element.style.backgroundColor = 'green';
             setSprite('greenVillain');
-        } else if (this.type === 'blueVillain') {
-            this.element.style.backgroundColor = 'blue';
+
+        } else if (this.type === 'redVillain') {
+            setSprite('redVillain');
+
         }
-        
-        function setSprite(command){
-            
+
+        function setSprite(command) {
+
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
             that.element.style.backgroundImage = 'url("images/doodle-sprites-2.png")';
             that.element.style.backgroundRepeat = 'no-repeat';
             that.element.style.backgroundPositionX = coOrds.x + 'px';
             that.element.style.backgroundPositionY = coOrds.y + 'px';
+
+            that.element.style.zIndex = 1;
+
+            that.width = coOrds.w;
+            that.height = coOrds.h;
         }
 
         var move = function (speed) {
             that.yPos += speed;
         };
 
-        var render = function () {
-            that.element.style.top = that.yPos + 'px';
+        var autoMove = function () {
+            if (that.xPos < 0 || that.xPos + that.width > SCREEN_WIDTH) {
+                xVelocity *= -1;
+            }
+
+            that.xPos += xVelocity;
+
         };
 
+        var moveDownAfterDeath = function () {
+            that.yPos += yVelocity;
+        };
+
+        var render = function () {
+            that.element.style.width = that.width + 'px';
+            that.element.style.height = that.height + 'px';
+
+
+            that.element.style.top = that.yPos + 'px';
+            that.element.style.left = that.xPos + 'px';
+        };
+
+
         this.updateFrame = function (speed) {
-            move(speed);
+
+            if (that.isDead) {
+                moveDownAfterDeath();
+            } else {
+                if (speed !== null) {
+                    move(speed);
+                }
+                autoMove();
+            }
+
             render();
         };
+
+        this.updateFrameX = function () {
+            if (that.isDead) {
+                moveDownAfterDeath();
+            } else {
+                autoMove();
+            }
+            render();
+        };
+
     };
 
 
@@ -616,8 +702,10 @@
 
         var createPlatform = function (width, height, xPos, yPos) {
             var platform = new Platform(width, height, xPos, yPos, 'standard');
-            if (Math.random() < 0.05) {
+            if (Math.random() < 0.1) {
                 platform = new Platform(width, height, xPos, yPos, 'spring');
+            } else if (Math.random() < 0.25) {
+                platform = new Platform(width, height, xPos, yPos, 'moving');
             }
             gameDiv.appendChild(platform.element);
 
@@ -630,8 +718,8 @@
         };
 
 
-        var createVillain = function (width, height, xPos, yPos) {
-            var villain = new Villain(width, height, xPos, yPos, 'greenVillain');
+        var createVillain = function (xPos, yPos, type) {
+            var villain = new Villain(xPos, yPos, type);
             gameDiv.appendChild(villain.element);
 
             villains.push(villain);
@@ -687,9 +775,11 @@
                 }
 
                 if (coOrd !== null) {
-                    createVillain(100, 50, coOrd.xCord, coOrd.yCord - 50);
-                    console.log('Random Number: ', randNum);
-                    console.log('villain created', coOrd.xCord, coOrd.yCord - 50);
+                    var type = 'greenVillain';
+                    if (Math.random() > 0.5) {
+                        type = 'redVillain';
+                    }
+                    createVillain(coOrd.xCord, coOrd.yCord - 50, type);                    //console.log('villain created', coOrd.xCord, coOrd.yCord - 50, type);
                 }
             }
         };
@@ -725,6 +815,20 @@
 
                 updateVillains();
 
+            }
+        };
+
+        var manageCollisionOfPlayerVillains = function () {
+            var collisionStatusIndex = extraClass.checkCollisionOfPlayerVillains(player, villains);
+            if (collisionStatusIndex !== null) {
+                if (collisionStatusIndex === 'collided') {
+                    console.log('player hits the villain, player dies');
+                } else {
+                    if (player.isFalling) {
+                        villains[collisionStatusIndex].isDead = true;
+                        player.groundLevel = villains[collisionStatusIndex].yPos;
+                    }
+                }
             }
         };
 
@@ -764,11 +868,23 @@
                     }
                 }
 
+                manageCollisionOfPlayerVillains();
+
                 score.updateScore();
 
                 updateBackground();
 
                 player.updateFrame();
+
+                for (var i = 0; i < platforms.length; i++) {
+                    if (platforms[i].type === 'moving') {
+                        platforms[i].updateFrameX();
+                    }
+                }
+
+                for (var i = 0; i < villains.length; i++) {
+                    villains[i].updateFrameX();
+                }
             }
 
         };
