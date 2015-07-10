@@ -20,21 +20,29 @@
 
         var that = this;
 
-        this.element = document.createElement('div');
+        this.element;
 
-        var xPos = 0;
-        var yPos = -80;
+        var xPos, yPos;
 
-        var width = SCREEN_WIDTH;
-        var height = SCREEN_HEIGHT + 80;
+        var width, height;
 
-        this.element.style.width = width + 'px';
-        this.element.style.height = height + 'px';
-        this.element.style.position = 'absolute';
-        this.element.style.top = yPos + 'px';
-        this.element.style.left = xPos + 'px';
-        this.element.style.backgroundImage = 'url("images/doodle-background.png")';
-        this.element.style.backgroundRepeat = 'repeat-x repeat-y';
+        this.init = function () {
+            that.element = document.createElement('div');
+
+            xPos = 0;
+            yPos = -80;
+
+            width = SCREEN_WIDTH;
+            height = SCREEN_HEIGHT + 80;
+
+            that.element.style.width = width + 'px';
+            that.element.style.height = height + 'px';
+            that.element.style.position = 'absolute';
+            that.element.style.top = yPos + 'px';
+            that.element.style.left = xPos + 'px';
+            that.element.style.backgroundImage = 'url("images/doodle-background.png")';
+            that.element.style.backgroundRepeat = 'repeat-x repeat-y';
+        };
 
         var move = function () {
             if (yPos >= 0) {
@@ -51,6 +59,8 @@
             move();
             render();
         };
+
+        this.init();
     };
 
 
@@ -187,36 +197,47 @@
 
         var that = this;
 
-        this.width = 100;
-        this.height = 26;
+        this.width, this.height;
 
-        this.type = _type;
-        var xVelocity = 1;
+        this.type;
+        var xVelocity;
 
-        this.xPos = _xPos;
-        this.yPos = _yPos;
+        this.xPos, this.yPos;
 
-        this.element = document.createElement('div');
+        this.element;
 
-        this.element.style.position = 'absolute';
-        this.element.style.left = this.xPos + 'px';
-        this.element.style.top = this.yPos + 'px';
+        this.init = function () {
+            that.width = 100;
+            that.height = 26;
 
-        if (this.type === 'standard') {
+            that.type = _type;
+            xVelocity = 1;
 
-            setSprite('greenBlock');
+            that.xPos = _xPos;
+            that.yPos = _yPos;
 
-        } else if (this.type === 'spring') {
+            that.element = document.createElement('div');
 
-            setSprite('blueBlock');
+            that.element.style.position = 'absolute';
+            that.element.style.left = that.xPos + 'px';
+            that.element.style.top = that.yPos + 'px';
 
-            setSpringSprite('springDown');
+            if (that.type === 'standard') {
 
-        } else if (this.type === 'moving') {
+                setSprite('greenBlock');
 
-            setSprite('whiteBlock');
+            } else if (that.type === 'spring') {
 
-        }
+                setSprite('blueBlock');
+
+                setSpringSprite('springDown');
+
+            } else if (that.type === 'moving') {
+
+                setSprite('whiteBlock');
+
+            }
+        };
 
         function setSprite(command) {
 
@@ -277,6 +298,8 @@
             autoMove();
             render();
         };
+
+        this.init();
     };
 
 
@@ -356,21 +379,27 @@
 
         var that = this;
 
-        this.element = document.createElement('div');
-        this.element.style.position = 'absolute';
-        this.element.style.zIndex = 3;
-        this.element.style.width = SCREEN_WIDTH + 'px';
-        this.element.style.height = SCREEN_HEIGHT / 30 + 'px';
-        this.element.style.top = '0px';
-        this.element.style.right = '0px';
-        this.element.style.textAlign = 'left';
-        this.element.style.backgroundColor = 'grey';
-        this.element.style.fontFamily = 'Candara';
-        this.element.style.fontSize = '16px';
-        this.element.style.fontWeight = 'bold';
-        this.element.style.color = 'white';
+        this.element;
 
-        this.score = 0;
+        this.score;
+
+        this.init = function () {
+            that.element = document.createElement('div');
+            that.element.style.position = 'absolute';
+            that.element.style.zIndex = 3;
+            that.element.style.width = SCREEN_WIDTH + 'px';
+            that.element.style.height = SCREEN_HEIGHT / 30 + 'px';
+            that.element.style.top = '0px';
+            that.element.style.right = '0px';
+            that.element.style.textAlign = 'left';
+            that.element.style.backgroundColor = 'grey';
+            that.element.style.fontFamily = 'Candara';
+            that.element.style.fontSize = '16px';
+            that.element.style.fontWeight = 'bold';
+            that.element.style.color = 'white';
+
+            that.score = 0;
+        };
 
         var render = function () {
             that.element.innerHTML = 'Score: ' + that.score;
@@ -387,59 +416,92 @@
 
             render();
         };
+
+        this.init();
     };
 
 
     var Player = function () {
         var that = this;
 
-        this.width = 50;
-        this.height = 78;
+        this.width, this.height;
 
-        var innerElementWidth = 80;
-        var innerElementHeight = 78;
+        var innerElementWidth, innerElementHeight;
 
-        this.yPos = SCREEN_HEIGHT / 2;
-        this.xPos = (SCREEN_WIDTH - this.width) / 2;
+        this.yPos, this.xPos;
 
-        this.xVelocity = 0;
-        this.yVelocity = 0;
+        this.xVelocity, this.yVelocity;
 
         this.spriteCord = {};
 
-        this.speed = 4;
-        this.ySpeed = -25;
-        this.direction = 'right';
-        this.platformType = 'standard';
+        this.speed, this.ySpeed;
+        this.direction;
+        this.platformType;
 
-        this.isUntouchable = false;
+        this.isUntouchable;
 
-        this.element = document.createElement('div');
-        this.element.style.width = this.width + 'px';
-        this.element.style.height = this.height + 'px';
-        this.element.style.position = 'absolute';
-        this.element.style.top = this.yPos + 'px';
-        this.element.style.left = this.xPos + 'px';
-        this.element.style.zIndex = '2';
+        this.element;
+        var innerElement;
+
+        this.animation;
+
+        this.spriteSheet;
+        this.spriteCord;
+
+        this.onGround;
+        this.isFalling;
+        this.groundLevel;
+        this.gravity;
+
+        this.init = function () {
+            that.width = 50;
+            that.height = 78;
+
+            innerElementWidth = 80;
+            innerElementHeight = 78;
+
+            that.yPos = SCREEN_HEIGHT / 2;
+            that.xPos = (SCREEN_WIDTH - that.width) / 2;
+
+            that.xVelocity = 0;
+            that.yVelocity = 0;
+
+            that.spriteCord = {};
+
+            that.speed = 4;
+            that.ySpeed = -25;
+            that.direction = 'right';
+            that.platformType = 'standard';
+
+            that.isUntouchable = false;
+
+            that.element = document.createElement('div');
+            that.element.style.width = that.width + 'px';
+            that.element.style.height = that.height + 'px';
+            that.element.style.position = 'absolute';
+            that.element.style.top = that.yPos + 'px';
+            that.element.style.left = that.xPos + 'px';
+            that.element.style.zIndex = '2';
 
 
-        var innerElement = document.createElement('div');
+            innerElement = document.createElement('div');
 
-        innerElement.style.width = innerElementWidth + 'px';
-        innerElement.style.height = innerElementHeight + 'px';
-        innerElement.style.backgroundImage = 'url("images/doodle-sprites.png")';
+            innerElement.style.width = innerElementWidth + 'px';
+            innerElement.style.height = innerElementHeight + 'px';
+            innerElement.style.backgroundImage = 'url("images/doodle-sprites.png")';
 
-        this.element.appendChild(innerElement);
+            that.element.appendChild(innerElement);
 
-        this.animation = new Animation(this);
-        this.spriteSheet = new Spritesheet();
+            that.animation = new Animation(that);
+            that.spriteSheet = new Spritesheet();
 
-        this.spriteCord = this.spriteSheet.getSpriteCoordinates('rightFace');
+            that.spriteCord = that.spriteSheet.getSpriteCoordinates('rightFace');
 
-        this.onGround = true;
-        this.isFalling = true;
-        this.groundLevel = SCREEN_HEIGHT;
-        this.gravity = 0.5;
+            that.onGround = true;
+            that.isFalling = true;
+            that.groundLevel = SCREEN_HEIGHT;
+            that.gravity = 0.5;
+        };
 
         var move = function () {
 
@@ -568,41 +630,60 @@
 
         };
 
+        this.init();
+
     };
 
 
     var Villain = function (_xPos, _yPos, _type) {
         var that = this;
 
-        this.width = 100;
-        this.height = 20;
+        this.width, this.height;
 
-        this.xPos = _xPos;
-        this.yPos = _yPos;
+        this.xPos, this.yPos;
 
         this.type = _type;
 
         this.speed = 4;
 
-        this.isDead = false;
+        this.isDead;
 
-        var xVelocity = 1;
-        var yVelocity = 8;
+        var xVelocity, yVelocity;
+
+        this.element;
+
+        this.init = function () {
+            that.width = 100;
+            that.height = 20;
+
+            that.xPos = _xPos;
+            that.yPos = _yPos;
+
+            that.type = _type;
+
+            that.speed = 4;
+
+            that.isDead = false;
+
+            xVelocity = 1;
+            yVelocity = 8;
 
 
-        this.element = document.createElement('div');
+            that.element = document.createElement('div');
 
-        this.element.style.position = 'absolute';
-        this.element.style.top = this.yPos + 'px';
-        this.element.style.left = this.xPos + 'px';
+            that.element.style.position = 'absolute';
+            that.element.style.top = that.yPos + 'px';
+            that.element.style.left = that.xPos + 'px';
 
-        if (this.type === 'greenVillain') {
-            setSprite('greenVillain');
+            if (that.type === 'greenVillain') {
+                setSprite('greenVillain');
 
-        } else if (this.type === 'redVillain') {
-            setSprite('redVillain');
+            } else if (that.type === 'redVillain') {
+                setSprite('redVillain');
 
-        }
+            }
+        };
+
 
         function setSprite(command) {
 
@@ -671,6 +752,8 @@
             }
             render();
         };
+
+        this.init();
 
     };
 
@@ -751,6 +834,9 @@
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
         gamePlatform.style.border = '1px solid black';
+        
+
+        var gameDiv = document.createElement('div');
 
         gameDiv.style.width = that.width + 'px';
         gameDiv.style.height = that.height + 'px';
@@ -758,12 +844,8 @@
         gameDiv.style.opacity = 1;
         gameDiv.style.overflow = 'hidden';
 
-//        var gameDiv = _gameDiv;
-
-        var gameDiv = document.createElement('div');
-
         gamePlatform.appendChild(gameDiv);
-
+        
 
         var background = new Background();
         var player = new Player();
@@ -938,6 +1020,14 @@
                     gameDiv.removeChild(gameDiv.firstChild);
                 }
             }
+            background.init();
+            player.init();
+            score.init();
+            platforms = [];
+            villains = [];
+
+            isGameOver = false;
+            
             gameSetup();
         };
 
