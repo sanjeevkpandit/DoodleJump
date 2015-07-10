@@ -19,24 +19,26 @@
 
         this.element = document.createElement('div');
 
-        this.imgSrc = 'images/sky-fluffy-clouds.JPG';
+        this.imgSrc = 'images/doodle-background.png';
 
         var xPos = 0;
-        var yPos = -60000;
+        var yPos = -80;
 
-        var width = 600;
-        var height = 61280;
+        var width = 400;
+        var height = 680;
 
         this.element.style.width = width + 'px';
         this.element.style.height = height + 'px';
         this.element.style.position = 'absolute';
         this.element.style.top = yPos + 'px';
         this.element.style.left = xPos + 'px';
-        //this.element.style.backgroundColor = 'lightblue';
-        this.element.style.background = 'url(' + this.imgSrc + ') repeat-y top left';
-
+        this.element.style.backgroundImage = 'url("' + this.imgSrc + '")';
+        this.element.style.backgroundRepeat = 'repeat-x repeat-y';
 
         var move = function () {
+            if (yPos >= 0) {
+                yPos = -80;
+            }
             yPos += 2;
         };
 
@@ -378,8 +380,14 @@
             that.element.innerHTML = 'Score: ' + that.score;
         };
 
-        this.updateScore = function () {
-            that.score += 1;
+        this.updateScore = function (updateMessage) {
+            if (updateMessage === 'height') {
+                that.score += 1;
+            } else if (updateMessage === 'redVillain') {
+                that.score += 10;
+            } else if (updateMessage === 'greenVillain') {
+                that.score += 20;
+            }
 
             render();
         };
@@ -395,11 +403,8 @@
         var innerElementWidth = 80;
         var innerElementHeight = 78;
 
-        var screenWidth = 600;
-        var screenHeight = 600;
-
-        this.yPos = screenHeight - this.height;
-        this.xPos = (screenWidth - this.width) / 2;
+        this.yPos = SCREEN_HEIGHT - this.height;
+        this.xPos = (SCREEN_WIDTH - this.width) / 2;
 
         this.xVelocity = 0;
         this.yVelocity = 0;
@@ -410,6 +415,8 @@
         this.ySpeed = -25;
         this.direction = 'right';
         this.platformType = 'standard';
+
+        this.isUntouchable = false;
 
         //var color = 'green';
 
@@ -438,7 +445,6 @@
         this.spriteSheet = new Spritesheet();
 
         this.spriteCord = this.spriteSheet.getSpriteCoordinates('rightFace');
-        console.log(this.spriteCord);
 
         this.onGround = true;
         this.isFalling = true;
@@ -449,6 +455,7 @@
             that.ySpeed = -25;
             if (that.platformType === 'spring') {
                 that.ySpeed = -100;
+                that.isUntouchable = true;
             }
 
             that.startJump();
@@ -547,6 +554,7 @@
 
             if (that.yVelocity === 0) {
                 that.isFalling = true;
+                that.isUntouchable = false;
             }
 
             endJump();
@@ -684,6 +692,7 @@
         var that = this;
 
         var interval = 20;
+        var setTimeInterval;
 
         var gameDiv = _gameDiv;
         this.width = 400;
@@ -790,6 +799,8 @@
 
                 player.animation.yPos = 300;
 
+                score.updateScore('height');
+
                 //update background
                 background.updateFrame();
 
@@ -822,17 +833,21 @@
             var collisionStatusIndex = extraClass.checkCollisionOfPlayerVillains(player, villains);
             if (collisionStatusIndex !== null) {
                 if (collisionStatusIndex === 'collided') {
-                    console.log('player hits the villain, player dies');
+                    if (player.isUntouchable === false) {
+                        isGameOver = true;
+                    }
                 } else {
                     if (player.isFalling) {
                         villains[collisionStatusIndex].isDead = true;
                         player.groundLevel = villains[collisionStatusIndex].yPos;
+                        score.updateScore(villains[collisionStatusIndex].type);
                     }
                 }
             }
         };
 
         var gameOver = function () {
+            clearTimeout(setTimeInterval);
             console.log('Game Over');
             alert('Game Over\nScore: ' + score.score);
         };
@@ -870,7 +885,7 @@
 
                 manageCollisionOfPlayerVillains();
 
-                score.updateScore();
+                score.updateScore(1);
 
                 updateBackground();
 
@@ -885,6 +900,8 @@
                 for (var i = 0; i < villains.length; i++) {
                     villains[i].updateFrameX();
                 }
+            } else {
+                gameOver();
             }
 
         };
@@ -892,7 +909,7 @@
         var init = function () {
             gameSetup();
 
-            setInterval(gameLoop, interval);
+            setTimeInterval = setInterval(gameLoop, interval);
         };
 
         init();
