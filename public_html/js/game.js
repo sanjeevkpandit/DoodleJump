@@ -403,7 +403,7 @@
         var innerElementWidth = 80;
         var innerElementHeight = 78;
 
-        this.yPos = SCREEN_HEIGHT - this.height;
+        this.yPos = SCREEN_HEIGHT / 2;
         this.xPos = (SCREEN_WIDTH - this.width) / 2;
 
         this.xVelocity = 0;
@@ -418,8 +418,6 @@
 
         this.isUntouchable = false;
 
-        //var color = 'green';
-
         this.element = document.createElement('div');
         this.element.style.width = this.width + 'px';
         this.element.style.height = this.height + 'px';
@@ -433,11 +431,7 @@
 
         innerElement.style.width = innerElementWidth + 'px';
         innerElement.style.height = innerElementHeight + 'px';
-        //this.innerElement.style.position = 'absolute';
-        //this.innerElement.style.top = this.yPos + 'px';
-        //this.innerElement.style.left = this.xPos + 'px';
         innerElement.style.backgroundImage = 'url("images/doodle-sprites.png")';
-        //        this.element.style.backgroundColor = color;
 
         this.element.appendChild(innerElement);
 
@@ -448,7 +442,7 @@
 
         this.onGround = true;
         this.isFalling = true;
-        this.groundLevel = 600;
+        this.groundLevel = SCREEN_HEIGHT;
         this.gravity = 0.5;
 
         var move = function () {
@@ -456,6 +450,7 @@
             if (that.platformType === 'spring') {
                 that.ySpeed = -100;
                 that.isUntouchable = true;
+                that.groundLevel = SCREEN_HEIGHT;
             }
 
             that.startJump();
@@ -513,7 +508,7 @@
         this.startJump = function () {
             if (that.onGround) {
                 that.yVelocity = that.ySpeed;
-                that.groundLevel = 600;
+                that.groundLevel = SCREEN_HEIGHT + 200;
                 that.onGround = false;
                 that.isFalling = false;
                 that.updateSpriteDuringCollision();
@@ -555,6 +550,7 @@
             if (that.yVelocity === 0) {
                 that.isFalling = true;
                 that.isUntouchable = false;
+                that.platformType = 'standard';
             }
 
             endJump();
@@ -566,6 +562,7 @@
                 that.animation.resetYValueAfterCollision(that.groundLevel);
                 that.onGround = true;
             }
+            
             if (((that.animation.xPos) <= -40)) {
                 that.animation.xPos = 360;
             }
@@ -711,7 +708,7 @@
 
         var createPlatform = function (width, height, xPos, yPos) {
             var platform = new Platform(width, height, xPos, yPos, 'standard');
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.01) {
                 platform = new Platform(width, height, xPos, yPos, 'spring');
             } else if (Math.random() < 0.25) {
                 platform = new Platform(width, height, xPos, yPos, 'moving');
@@ -879,7 +876,7 @@
 
                 if (player.isFalling) {
                     if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
-                        player.groundLevel = 600;
+                        
                     }
                 }
 
@@ -900,6 +897,11 @@
                 for (var i = 0; i < villains.length; i++) {
                     villains[i].updateFrameX();
                 }
+                
+                if (player.yPos >= SCREEN_HEIGHT) {
+                    isGameOver = true;
+                }
+                
             } else {
                 gameOver();
             }
