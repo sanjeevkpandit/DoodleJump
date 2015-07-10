@@ -13,26 +13,27 @@
     var SCREEN_WIDTH = 400;
     var SCREEN_HEIGHT = 600;
 
+    var KEY_EVENT_KEY_LEFT = 97;
+    var KEY_EVENT_KEY_RIGHT = 100;
+
     var Background = function () {
 
         var that = this;
 
         this.element = document.createElement('div');
 
-        this.imgSrc = 'images/doodle-background.png';
-
         var xPos = 0;
         var yPos = -80;
 
-        var width = 400;
-        var height = 680;
+        var width = SCREEN_WIDTH;
+        var height = SCREEN_HEIGHT + 80;
 
         this.element.style.width = width + 'px';
         this.element.style.height = height + 'px';
         this.element.style.position = 'absolute';
         this.element.style.top = yPos + 'px';
         this.element.style.left = xPos + 'px';
-        this.element.style.backgroundImage = 'url("' + this.imgSrc + '")';
+        this.element.style.backgroundImage = 'url("images/doodle-background.png")';
         this.element.style.backgroundRepeat = 'repeat-x repeat-y';
 
         var move = function () {
@@ -151,22 +152,9 @@
         ];
 
         this.getSpriteCoordinates = function (command) {
-//            var coOrds;
-//            if (command === 'moveLeft') {
-//                coOrds = findCoOrd('leftFace');
-//            } else if (command === 'moveRight') {
-//                coOrds = findCoOrd('rightFace');
-//            } else if (command === 'leftJump') {
-//                coOrds = findCoOrd('leftJump');
-//            } else if (command === 'rightJump') {
-//                coOrds = findCoOrd('rightJump');
-//            } else if (command === 'springDown') {
-//                coOrds = findCoOrd('springDown');
-//            } else if (command === 'springUp') {
-//                coOrds = findCoOrd('springUp');
-//            }
 
             return findCoOrd(command);
+
         };
 
         var findCoOrd = function (command) {
@@ -195,12 +183,12 @@
     };
 
 
-    var Platform = function (_width, _height, _xPos, _yPos, _type) {
+    var Platform = function (_xPos, _yPos, _type) {
 
         var that = this;
 
-        this.width = _width;
-        this.height = _height;
+        this.width = 100;
+        this.height = 26;
 
         this.type = _type;
         var xVelocity = 1;
@@ -210,8 +198,6 @@
 
         this.element = document.createElement('div');
 
-        this.element.style.width = this.width + 'px';
-        this.element.style.height = this.height + 'px';
         this.element.style.position = 'absolute';
         this.element.style.left = this.xPos + 'px';
         this.element.style.top = this.yPos + 'px';
@@ -235,10 +221,17 @@
         function setSprite(command) {
 
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
+
+            that.width = coOrds.w;
+            that.height = coOrds.h;
+
+            that.element.style.width = that.width + 'px';
+            that.element.style.height = that.height + 'px';
             that.element.style.backgroundImage = 'url("images/doodle-sprites.png")';
             that.element.style.backgroundRepeat = 'no-repeat';
             that.element.style.backgroundPositionX = coOrds.x + 'px';
             that.element.style.backgroundPositionY = coOrds.y + 'px';
+
         }
 
         function setSpringSprite(command) {
@@ -366,12 +359,15 @@
         this.element = document.createElement('div');
         this.element.style.position = 'absolute';
         this.element.style.zIndex = 3;
-        this.element.style.width = '100px';
-        this.element.style.height = '20px';
+        this.element.style.width = SCREEN_WIDTH + 'px';
+        this.element.style.height = SCREEN_HEIGHT / 30 + 'px';
         this.element.style.top = '0px';
         this.element.style.right = '0px';
-        this.element.style.textAlign = 'right';
+        this.element.style.textAlign = 'left';
         this.element.style.backgroundColor = 'grey';
+        this.element.style.fontFamily = 'Candara';
+        this.element.style.fontSize = '16px';
+        this.element.style.fontWeight = 'bold';
         this.element.style.color = 'white';
 
         this.score = 0;
@@ -446,7 +442,9 @@
         this.gravity = 0.5;
 
         var move = function () {
+
             that.ySpeed = -25;
+
             if (that.platformType === 'spring') {
                 that.ySpeed = -100;
                 that.isUntouchable = true;
@@ -459,22 +457,13 @@
 
                 var keyCode = event.which || event.keyCode;
 
-                if (keyCode === 97) {
+                if (keyCode === KEY_EVENT_KEY_LEFT) {
                     that.xVelocity = -that.speed;
                     that.direction = 'left';
                 }
-                if (keyCode === 100) {
+                if (keyCode === KEY_EVENT_KEY_RIGHT) {
                     that.xVelocity = that.speed;
                     that.direction = 'right';
-                }
-                if (keyCode === 119) {
-                    that.startJump();
-                }
-                if ((keyCode === 113)) {
-                    startLeftJump();
-                }
-                if ((keyCode === 101)) {
-                    startRightJump();
                 }
             };
 
@@ -562,7 +551,7 @@
                 that.animation.resetYValueAfterCollision(that.groundLevel);
                 that.onGround = true;
             }
-            
+
             if (((that.animation.xPos) <= -40)) {
                 that.animation.xPos = 360;
             }
@@ -595,8 +584,6 @@
 
         this.speed = 4;
 
-        this.moveDown = false;
-
         this.isDead = false;
 
         var xVelocity = 1;
@@ -620,15 +607,19 @@
         function setSprite(command) {
 
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
+
+            that.width = coOrds.w;
+            that.height = coOrds.h;
+
+            that.element.style.width = that.width + 'px';
+            that.element.style.height = that.height + 'px';
+
             that.element.style.backgroundImage = 'url("images/doodle-sprites-2.png")';
             that.element.style.backgroundRepeat = 'no-repeat';
             that.element.style.backgroundPositionX = coOrds.x + 'px';
             that.element.style.backgroundPositionY = coOrds.y + 'px';
 
             that.element.style.zIndex = 1;
-
-            that.width = coOrds.w;
-            that.height = coOrds.h;
         }
 
         var move = function (speed) {
@@ -684,6 +675,67 @@
     };
 
 
+    var GamePlay = function () {
+        var that = this;
+
+        this.element = document.createElement('div');
+
+        this.playDivElement = document.createElement('div');
+
+        var width = SCREEN_WIDTH;
+        var height = SCREEN_HEIGHT;
+
+        this.element.style.width = width + 'px';
+        this.element.style.height = height + 'px';
+
+        this.element.style.position = 'absolute';
+        this.element.style.top = '0px';
+        this.element.style.left = '0px';
+        this.element.style.zIndex = 3;
+
+
+        var appendStartMenu = function () {
+            that.playDivElement.style.width = '200px';
+            that.playDivElement.style.height = '50px';
+
+            that.playDivElement.style.position = 'absolute';
+            that.playDivElement.style.left = width / 2 - 100 + 'px';
+            that.playDivElement.style.top = height / 2 - 25 + 'px';
+
+            that.playDivElement.style.backgroundColor = 'lightblue';
+
+            that.playDivElement.style.lineHeight = '50px';
+            that.playDivElement.style.textAlign = 'center';
+            that.playDivElement.style.textTransformation = 'uppercase';
+            that.playDivElement.style.fontFamily = 'Ravie';
+            that.playDivElement.style.fontSize = '24px';
+
+            that.playDivElement.innerHTML = 'PLAY';
+
+            that.playDivElement.onmouseover = function () {
+                that.playDivElement.style.cursor = 'pointer';
+                that.playDivElement.style.backgroundColor = 'blue';
+            };
+
+            that.playDivElement.onmouseout = function () {
+                that.playDivElement.style.backgroundColor = 'lightblue';
+            };
+
+            that.element.appendChild(that.playDivElement);
+        };
+
+        this.hideMenu = function () {
+            that.element.style.display = 'none';
+        };
+
+        this.showMenu = function () {
+            that.element.style.display = 'block';
+        };
+
+        appendStartMenu();
+    };
+
+
     var DoodleJump = function (_gameDiv) {
 
         var that = this;
@@ -691,14 +743,33 @@
         var interval = 20;
         var setTimeInterval;
 
-        var gameDiv = _gameDiv;
-        this.width = 400;
-        this.height = 600;
+        this.width = SCREEN_WIDTH;
+        this.height = SCREEN_HEIGHT;
+
+        var gamePlatform = _gameDiv;
+
+        gamePlatform.style.width = that.width + 'px';
+        gamePlatform.style.height = that.height + 'px';
+        gamePlatform.style.border = '1px solid black';
+
+        gameDiv.style.width = that.width + 'px';
+        gameDiv.style.height = that.height + 'px';
+        gameDiv.style.position = 'relative';
+        gameDiv.style.opacity = 1;
+        gameDiv.style.overflow = 'hidden';
+
+//        var gameDiv = _gameDiv;
+
+        var gameDiv = document.createElement('div');
+
+        gamePlatform.appendChild(gameDiv);
+
 
         var background = new Background();
         var player = new Player();
         var extraClass = new ExtraClass();
         var score = new Score();
+        var gamePlay = new GamePlay();
 
         var platforms = [];
         var villains = [];
@@ -706,12 +777,12 @@
         var isGameOver = false;
 
 
-        var createPlatform = function (width, height, xPos, yPos) {
-            var platform = new Platform(width, height, xPos, yPos, 'standard');
+        var createPlatform = function (xPos, yPos) {
+            var platform = new Platform(xPos, yPos, 'standard');
             if (Math.random() < 0.01) {
-                platform = new Platform(width, height, xPos, yPos, 'spring');
+                platform = new Platform(xPos, yPos, 'spring');
             } else if (Math.random() < 0.25) {
-                platform = new Platform(width, height, xPos, yPos, 'moving');
+                platform = new Platform(xPos, yPos, 'moving');
             }
             gameDiv.appendChild(platform.element);
 
@@ -722,7 +793,6 @@
             platforms[platformIndex].element.remove();
             platforms.splice(platformIndex, 1);
         };
-
 
         var createVillain = function (xPos, yPos, type) {
             var villain = new Villain(xPos, yPos, type);
@@ -738,12 +808,13 @@
 
         var createPlatformsTemp = function () {
             platforms = [
-                new Platform(100, 26, 200, 500, 'standard'),
-                new Platform(100, 26, 200, 400, 'standard'),
-                new Platform(100, 26, 200, 300, 'standard'),
-                new Platform(100, 26, 200, 200, 'standard'),
-                new Platform(100, 26, 200, 100, 'standard'),
-                new Platform(100, 26, 200, 0, 'standard')
+                new Platform(200, 500, 'standard'),
+                new Platform(200, 400, 'standard'),
+                new Platform(0, 300, 'standard'),
+                new Platform(200, 200, 'standard'),
+                new Platform(200, 100, 'standard'),
+                new Platform(400, 0, 'standard'),
+                new Platform(200, 0, 'standard')
             ];
 
             for (var i = 0; i < platforms.length; i++) {
@@ -760,7 +831,7 @@
             var coOrd = extraClass.getRandomCoordinates(prevX, prevY);
 
             if (coOrd !== null) {
-                createPlatform(100, 26, coOrd.xCord, coOrd.yCord);
+                createPlatform(coOrd.xCord, coOrd.yCord);
             }
         };
 
@@ -847,16 +918,10 @@
             clearTimeout(setTimeInterval);
             console.log('Game Over');
             alert('Game Over\nScore: ' + score.score);
+            displayMenu();
         };
 
-
         var gameSetup = function () {
-            gameDiv.style.width = that.width + 'px';
-            gameDiv.style.height = that.height + 'px';
-            gameDiv.style.position = 'relative';
-            gameDiv.style.border = '1px solid black';
-            gameDiv.style.overflow = 'hidden';
-
 
             gameDiv.appendChild(background.element);
 
@@ -865,6 +930,36 @@
             createPlatformsTemp();
 
             gameDiv.appendChild(player.element);
+        };
+
+        var resetGameSetup = function () {
+            if (gameDiv.hasChildNodes()) {
+                while (gameDiv.hasChildNodes()) {
+                    gameDiv.removeChild(gameDiv.firstChild);
+                }
+            }
+            gameSetup();
+        };
+
+        var displayGame = function () {
+            gameDiv.style.opacity = 1;
+            resetGameSetup();
+            setTimeInterval = setInterval(gameLoop, interval);
+        };
+
+        var displayMenu = function () {
+            gameDiv.style.opacity = 0.5;
+            gamePlay.showMenu();
+        };
+
+        var gamePlaySetup = function () {
+
+            gamePlatform.appendChild(gamePlay.element);
+
+            gamePlay.playDivElement.onclick = function () {
+                gamePlay.hideMenu();
+                displayGame();
+            };
         };
 
         //var loopCounter = 0;
@@ -876,7 +971,7 @@
 
                 if (player.isFalling) {
                     if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
-                        
+
                     }
                 }
 
@@ -897,11 +992,11 @@
                 for (var i = 0; i < villains.length; i++) {
                     villains[i].updateFrameX();
                 }
-                
+
                 if (player.yPos >= SCREEN_HEIGHT) {
                     isGameOver = true;
                 }
-                
+
             } else {
                 gameOver();
             }
@@ -909,9 +1004,15 @@
         };
 
         var init = function () {
-            gameSetup();
 
-            setTimeInterval = setInterval(gameLoop, interval);
+            gamePlaySetup();
+
+            //gamePlay.displayStartMenu();
+
+
+            //gameSetup();
+
+            //setTimeInterval = setInterval(gameLoop, interval);
         };
 
         init();
