@@ -16,6 +16,8 @@
     var KEY_EVENT_KEY_LEFT = 97;
     var KEY_EVENT_KEY_RIGHT = 100;
 
+
+    /*Background*/
     var Background = function () {
 
         var that = this;
@@ -26,6 +28,7 @@
 
         var width, height;
 
+        /*Initialize and/or reset*/
         this.init = function () {
             that.element = document.createElement('div');
 
@@ -43,7 +46,8 @@
             that.element.style.backgroundImage = 'url("images/doodle-background.png")';
             that.element.style.backgroundRepeat = 'repeat-x repeat-y';
         };
-
+        
+        /*move down*/
         var move = function () {
             if (yPos >= 0) {
                 yPos = -80;
@@ -51,19 +55,23 @@
             yPos += 2;
         };
 
+        /*display in browser*/
         var render = function () {
             that.element.style.top = yPos + 'px';
         };
 
+        /*update status*/
         this.updateFrame = function () {
             move();
             render();
         };
 
+        /*Load at the beginning*/
         this.init();
     };
 
 
+    /*Animation of Player*/
     var Animation = function (_character) {
 
         var that = this;
@@ -78,7 +86,7 @@
 
         var speed = character.speed;
 
-
+        /*reset the values of character*/
         this.resetValues = function () {
             that.xPos = character.xPos;
             that.yPos = character.yPos;
@@ -87,18 +95,22 @@
             character.yVelocity = 0;
         };
 
+        /*Reset Y position only*/
         this.resetYValue = function () {
             that.yPos = character.yPos;
         };
 
+        /*reset Y position after collision*/
         this.resetYValueAfterCollision = function (_yValue) {
             that.yPos = character.yPos = _yValue - character.height;
         };
 
+        /*reset X position only*/
         this.resetXValue = function () {
             that.xPos = character.xPos;
         };
 
+        /*move left or right*/
         this.move = function (direction) {
             if (direction === 'left') {
                 that.xPos -= speed;
@@ -108,6 +120,7 @@
             }
         };
 
+        /*display in browser*/
         this.render = function () {
 
             character.xPos = that.xPos;
@@ -121,19 +134,28 @@
     };
 
 
+    /*Collision Detection of Two Objects*/
     var Collision = function () {
+        
+        /*Check if Object A reaches on top of Object B*/
         this.checkTopCollision = function (objectA, objectB) {
             if (((objectA.xPos + objectA.width) > objectB.xPos) && (objectA.xPos < (objectB.xPos + objectB.width))) {
+                /*if Object A is in X-axis region of Object B*/
                 if (((objectA.yPos + objectA.height) >= objectB.yPos) && (objectA.yPos < objectB.yPos) && ((objectA.yPos + objectA.height) < (objectB.yPos + objectB.height))) {
+                    /*if Object A bottom is on top of Object B*/
                     return true;
                 }
             }
             return false;
+            
         };
 
+        /*Check if Object A collides with Object B in any direction*/
         this.checkCollision = function (objectA, objectB) {
             if (((objectA.xPos + objectA.width) > objectB.xPos) && (objectA.xPos < (objectB.xPos + objectB.width))) {
+                /*if Object A is in X-axis region of Object B*/
                 if (((objectA.yPos + objectA.height) > objectB.yPos) && (objectA.yPos < (objectB.yPos + objectB.height))) {
+                    /*if Object A bottom is besides of Object B*/
                     return true;
                 }
             }
@@ -142,10 +164,12 @@
     };
 
 
+    /*SpriteSheet foor player, enemy and blocks/platforms*/
     var Spritesheet = function () {
 
         var that = this;
 
+        /*Co-ordinates of sprites for player, enemies and platforms/blocks*/
         var coordinates = [
             {action: 'leftFace', coOrd: {x: 0, y: -202, w: 0, h: 0}},
             {action: 'leftJump', coOrd: {x: 0, y: -372, w: 0, h: 0}},
@@ -161,12 +185,14 @@
             {action: 'redVillain', coOrd: {x: 0, y: -104, w: 47, h: 35}}
         ];
 
+        /*return required co-ordinates as per request*/
         this.getSpriteCoordinates = function (command) {
 
             return findCoOrd(command);
 
         };
 
+        /*search for co-ordinates*/
         var findCoOrd = function (command) {
             for (var i = 0; i < coordinates.length; i++) {
                 if (coordinates[i].action === command) {
@@ -177,7 +203,9 @@
     };
 
 
+    /*Sprite Div for Player and Villains*/
     var Sprite = function (command) {
+        
         this.coOrds = new Spritesheet().getSpriteCoordinates(command);
 
         this.element = document.createElement('div');
@@ -193,6 +221,7 @@
     };
 
 
+    /*Blocks for moving up*/
     var Platform = function (_xPos, _yPos, _type) {
 
         var that = this;
@@ -206,6 +235,8 @@
 
         this.element;
 
+
+        /*initialize or reset the platform*/
         this.init = function () {
             that.width = 100;
             that.height = 26;
@@ -224,21 +255,25 @@
 
             if (that.type === 'standard') {
 
+                /*green Block (Still)*/
                 setSprite('greenBlock');
 
             } else if (that.type === 'spring') {
 
+                /*Blue Block (Spring)*/
                 setSprite('blueBlock');
 
                 setSpringSprite('springDown');
 
             } else if (that.type === 'moving') {
 
+                /*White Block (Moving)*/
                 setSprite('whiteBlock');
 
             }
         };
 
+        /*set the sprite image*/
         function setSprite(command) {
 
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
@@ -255,7 +290,9 @@
 
         }
 
+        /*append spring to Blue(Spring) Block*/
         function setSpringSprite(command) {
+            
             var sprite = new Sprite(command);
 
             sprite.element.style.left = sprite.coOrds.w / 2 + 'px';
@@ -265,6 +302,7 @@
         }
         ;
 
+        /*Update the spring sprite/image on top collision with player*/
         this.changeSpringSprite = function () {
             if (that.type === 'spring') {
                 that.element.removeChild(that.element.childNodes[0]);
@@ -272,10 +310,12 @@
             }
         };
 
+        /*move down*/
         var move = function (speed) {
             that.yPos += speed;
         };
 
+        /*automatically move in X-axis for White(Moving) Block*/
         var autoMove = function () {
             if (that.xPos < 0 || that.xPos + that.width > SCREEN_WIDTH) {
                 xVelocity *= -1;
@@ -284,29 +324,36 @@
             that.xPos += xVelocity;
         };
 
+        /*display in browser*/
         var render = function () {
             that.element.style.left = that.xPos + 'px';
             that.element.style.top = that.yPos + 'px';
         };
 
+        /*update the status*/
         this.updateFrame = function (speed) {
             move(speed);
             render();
         };
 
+        /*update the status (for White(Moving) Block)*/
         this.updateFrameX = function () {
             autoMove();
             render();
         };
 
+
+        /*Initialize at the beginning*/
         this.init();
     };
 
 
+    /*ExtraClass for extra oprations in Main Class*/
     var ExtraClass = function () {
 
         var collision = new Collision();
 
+        /*get random co-ordinates for blocks/platform*/
         this.getRandomCoordinates = function (prevX, prevY) {
 
             var randomXValue = Math.floor(Math.random() * 4);
@@ -323,6 +370,7 @@
             return null;
         };
 
+        /*get random co=ordinates for villains*/
         this.getRandomCoordinatesForVillain = function (prevX, prevY) {
 
             var randomXValue = Math.floor(Math.random() * 4);
@@ -336,7 +384,9 @@
 
         };
 
+        /*check collision of player and platforms (top collision)*/
         this.checkCollisionOfPlayerPlatforms = function (player, platforms) {
+            
             for (var i = 0; i < platforms.length; i++) {
                 if (collision.checkTopCollision(player.animation, platforms[i])) {
 
@@ -350,8 +400,10 @@
                 }
             }
             return false;
+            
         };
 
+        /*check collision of player and villains in all directions and top collision as well*/
         this.checkCollisionOfPlayerVillains = function (player, villains) {
             for (var i = 0; i < villains.length; i++) {
                 if (collision.checkCollision(player.animation, villains[i])) {
@@ -364,17 +416,10 @@
             return null;
         };
 
-        this.checkTopCollisionOfPlayerVillains = function (player, villains) {
-            for (var i = 0; i < villains.length; i++) {
-                if (collision.checkTopCollision(player.animation, villains[i])) {
-                    return true;
-                }
-            }
-            return false;
-        };
     };
 
 
+    /*Score */
     var Score = function () {
 
         var that = this;
@@ -383,6 +428,7 @@
 
         this.score;
 
+        /*Initialize and reset the score*/
         this.init = function () {
             that.element = document.createElement('div');
             that.element.style.position = 'absolute';
@@ -401,10 +447,12 @@
             that.score = 0;
         };
 
+        /*display in browser*/
         var render = function () {
             that.element.innerHTML = 'Score: ' + that.score;
         };
 
+        /*update score */
         this.updateScore = function (updateMessage) {
             if (updateMessage === 'height') {
                 that.score += 1;
@@ -417,10 +465,12 @@
             render();
         };
 
+        /*Initialize at the beginning*/
         this.init();
     };
 
 
+    /*Player*/
     var Player = function () {
         var that = this;
 
@@ -453,6 +503,7 @@
         this.groundLevel;
         this.gravity;
 
+        /*Initialize or reset the player*/
         this.init = function () {
             that.width = 50;
             that.height = 78;
@@ -503,6 +554,7 @@
             that.gravity = 0.5;
         };
 
+        /*move*/
         var move = function () {
 
             that.ySpeed = -25;
@@ -531,11 +583,13 @@
 
         };
 
+        /*display in browser*/
         var render = function () {
             innerElement.style.backgroundPositionX = that.spriteCord.x + 'px';
             innerElement.style.backgroundPositionY = that.spriteCord.y + 'px';
         };
 
+        /*update direction of sprite image*/
         var updateDirection = function () {
             if (that.direction === 'left') {
                 innerElement.style.marginLeft = '-30px';
@@ -546,6 +600,7 @@
             }
         };
 
+        /*update sprite image after top collision with objects*/
         this.updateSpriteDuringCollision = function () {
             if (that.direction === 'left') {
                 innerElement.style.marginLeft = '-30px';
@@ -556,6 +611,7 @@
             }
         };
 
+        /*jump*/
         this.startJump = function () {
             if (that.onGround) {
                 that.yVelocity = that.ySpeed;
@@ -568,12 +624,14 @@
             }
         };
 
+        /*limit the height after jump*/
         var endJump = function () {
             if (that.yVelocity < that.ySpeed / 2) {
                 that.yVelocity = that.ySpeed / 2;
             }
         };
 
+        /*update status*/
         this.updateFrame = function () {
 
             that.yVelocity += that.gravity;
@@ -594,12 +652,14 @@
                 that.onGround = true;
             }
 
+            /*check if the player has moved beyond the screen, if true: make the player appear on other side of screen*/
             if (((that.animation.xPos) <= -40)) {
-                that.animation.xPos = 360;
+                that.animation.xPos = SCREEN_WIDTH - 40;
             }
-            if (that.animation.xPos >= 400) {
+            if (that.animation.xPos >= SCREEN_WIDTH) {
                 that.animation.xPos = 0;
             }
+            
             if (that.onGround === true) {
                 that.xVelocity = 0;
             }
@@ -610,11 +670,13 @@
 
         };
 
+        /*initialize at the beginning*/
         this.init();
 
     };
 
 
+    /*Villain*/
     var Villain = function (_xPos, _yPos, _type) {
         var that = this;
 
@@ -632,6 +694,7 @@
 
         this.element;
 
+        /*initialize or reset the villain*/
         this.init = function () {
             that.width = 100;
             that.height = 20;
@@ -664,7 +727,7 @@
             }
         };
 
-
+        /*set sprite image for villain*/
         function setSprite(command) {
 
             var coOrds = new Spritesheet().getSpriteCoordinates(command);
@@ -683,11 +746,15 @@
             that.element.style.zIndex = 1;
         }
 
+        /*move in Y-axis*/
         var move = function (speed) {
             that.yPos += speed;
         };
 
+        /*move in X-axis*/
         var autoMove = function () {
+            
+            /*set X-axis limits for horizontal movement*/
             if (that.xPos < 0 || that.xPos + that.width > SCREEN_WIDTH) {
                 xVelocity *= -1;
             }
@@ -696,20 +763,21 @@
 
         };
 
+        /*move down after top collision with player*/
         var moveDownAfterDeath = function () {
             that.yPos += yVelocity;
         };
 
+        /*display in browser*/
         var render = function () {
             that.element.style.width = that.width + 'px';
             that.element.style.height = that.height + 'px';
-
 
             that.element.style.top = that.yPos + 'px';
             that.element.style.left = that.xPos + 'px';
         };
 
-
+        /*update status*/
         this.updateFrame = function (speed) {
 
             if (that.isDead) {
@@ -724,6 +792,7 @@
             render();
         };
 
+        /*update status for X-axis*/
         this.updateFrameX = function () {
             if (that.isDead) {
                 moveDownAfterDeath();
@@ -733,11 +802,13 @@
             render();
         };
 
+        /*Initialize at the beginning*/
         this.init();
 
     };
 
 
+    /*Game Menu before and after playing game*/
     var GamePlay = function () {
         var that = this;
 
@@ -756,7 +827,7 @@
         this.element.style.left = '0px';
         this.element.style.zIndex = 3;
 
-
+        /*display "PLAY" option before and after game*/
         var appendStartMenu = function () {
             that.playDivElement.style.width = '200px';
             that.playDivElement.style.height = '50px';
@@ -787,6 +858,7 @@
             that.element.appendChild(that.playDivElement);
         };
 
+        /*display SCORESHEET after game over*/
         this.appendScoreSheet = function (score) {
 
             var scoreDiv = document.getElementById('scoreCard');
@@ -814,6 +886,7 @@
             that.element.appendChild(scoreDiv);
         };
         
+        /*display instructions for playing*/
         var appendInstructionsSheet = function () {
 
             var instructionsDiv = document.getElementById('instructionCard');
@@ -841,19 +914,23 @@
             that.element.appendChild(instructionsDiv);
         };
 
+        /*hide menu for playing game*/
         this.hideMenu = function () {
             that.element.style.display = 'none';
         };
 
+        /*display menu before and after playing game*/
         this.showMenu = function () {
             that.element.style.display = 'block';
         };
 
+        /*display play menu and instruction sheet*/
         appendStartMenu();
         appendInstructionsSheet();
     };
 
 
+    /*Main class for game*/
     var DoodleJump = function (_gameDiv) {
 
         var that = this;
@@ -893,7 +970,7 @@
 
         var isGameOver = false;
 
-
+        /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
             var platform = new Platform(xPos, yPos, 'standard');
             if (Math.random() < 0.01) {
@@ -906,11 +983,13 @@
             platforms.push(platform);
         };
 
+        /*destroy unwanted block/platform*/
         var destroyPlatform = function (platformIndex) {
             platforms[platformIndex].element.remove();
             platforms.splice(platformIndex, 1);
         };
 
+        /*create new villain*/
         var createVillain = function (xPos, yPos, type) {
             var villain = new Villain(xPos, yPos, type);
             gameDiv.appendChild(villain.element);
@@ -918,11 +997,13 @@
             villains.push(villain);
         };
 
+        /*destroy unwanted villain*/
         var destroyVillain = function (villainIndex) {
             villains[villainIndex].element.remove();
             villains.splice(villainIndex, 1);
         };
 
+        /*create platforms at the beginning*/
         var createPlatformsTemp = function () {
             platforms = [
                 new Platform(200, 500, 'standard'),
@@ -940,6 +1021,7 @@
 
         };
 
+        /*create new platforms as the player rises up*/
         var updatePlatforms = function () {
 
             var prevX = platforms[platforms.length - 1].xPos;
@@ -952,6 +1034,7 @@
             }
         };
 
+        /*create new villains as the player rises up*/
         var updateVillains = function () {
 
             var randNum = Math.random();
@@ -978,6 +1061,7 @@
             }
         };
 
+        /*update background, platforms, villains as the player rises up*/
         var updateBackground = function () {
 
             if (player.yPos < 300) {
@@ -1014,6 +1098,7 @@
             }
         };
 
+        /*manage collision of player and villains*/
         var manageCollisionOfPlayerVillains = function () {
             var collisionStatusIndex = extraClass.checkCollisionOfPlayerVillains(player, villains);
             if (collisionStatusIndex !== null) {
@@ -1031,6 +1116,7 @@
             }
         };
 
+        /*game over*/
         var gameOver = function () {
             clearTimeout(setTimeInterval);
             console.log('Game Over');
@@ -1038,6 +1124,7 @@
             displayMenu();
         };
 
+        /*setup game before play*/
         var gameSetup = function () {
 
             gameDiv.appendChild(background.element);
@@ -1049,12 +1136,17 @@
             gameDiv.appendChild(player.element);
         };
 
+        /*reset game after game over*/
         var resetGameSetup = function () {
+            
+            /*remove all child elements including player, platforms, background and villains*/
             if (gameDiv.hasChildNodes()) {
                 while (gameDiv.hasChildNodes()) {
                     gameDiv.removeChild(gameDiv.firstChild);
                 }
             }
+            
+            /*reset all objects*/
             background.init();
             player.init();
             score.init();
@@ -1063,15 +1155,18 @@
 
             isGameOver = false;
 
+            /*append all required elements in main div*/
             gameSetup();
         };
 
+        /*display game*/
         var displayGame = function () {
             gameDiv.style.opacity = 1;
             resetGameSetup();
             setTimeInterval = setInterval(gameLoop, interval);
         };
 
+        /*display menu*/
         var displayMenu = function () {
             gameDiv.style.opacity = 0.5;
             if (isGameOver) {
@@ -1080,6 +1175,7 @@
             gamePlay.showMenu();
         };
 
+        /*setup game*/
         var gamePlaySetup = function () {
 
             gamePlatform.appendChild(gamePlay.element);
@@ -1090,6 +1186,7 @@
             };
         };
 
+        /*game loop*/
         var gameLoop = function () {
 
             if (!isGameOver) {
@@ -1128,6 +1225,7 @@
 
         };
 
+        /*initialize*/
         var init = function () {
 
             gamePlaySetup();
