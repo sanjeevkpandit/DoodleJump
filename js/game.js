@@ -46,7 +46,7 @@
             that.element.style.backgroundImage = 'url("images/doodle-background.png")';
             that.element.style.backgroundRepeat = 'repeat-x repeat-y';
         };
-        
+
         /*move down*/
         var move = function () {
             if (yPos >= 0) {
@@ -136,7 +136,7 @@
 
     /*Collision Detection of Two Objects*/
     var Collision = function () {
-        
+
         /*Check if Object A reaches on top of Object B*/
         this.checkTopCollision = function (objectA, objectB) {
             if (((objectA.xPos + objectA.width) > objectB.xPos) && (objectA.xPos < (objectB.xPos + objectB.width))) {
@@ -147,7 +147,7 @@
                 }
             }
             return false;
-            
+
         };
 
         /*Check if Object A collides with Object B in any direction*/
@@ -205,7 +205,7 @@
 
     /*Sprite Div for Player and Villains*/
     var Sprite = function (command) {
-        
+
         this.coOrds = new Spritesheet().getSpriteCoordinates(command);
 
         this.element = document.createElement('div');
@@ -292,7 +292,7 @@
 
         /*append spring to Blue(Spring) Block*/
         function setSpringSprite(command) {
-            
+
             var sprite = new Sprite(command);
 
             sprite.element.style.left = sprite.coOrds.w / 2 + 'px';
@@ -386,7 +386,7 @@
 
         /*check collision of player and platforms (top collision)*/
         this.checkCollisionOfPlayerPlatforms = function (player, platforms) {
-            
+
             for (var i = 0; i < platforms.length; i++) {
                 if (collision.checkTopCollision(player.animation, platforms[i])) {
 
@@ -400,7 +400,7 @@
                 }
             }
             return false;
-            
+
         };
 
         /*check collision of player and villains in all directions and top collision as well*/
@@ -659,7 +659,7 @@
             if (that.animation.xPos >= SCREEN_WIDTH) {
                 that.animation.xPos = 0;
             }
-            
+
             if (that.onGround === true) {
                 that.xVelocity = 0;
             }
@@ -753,7 +753,7 @@
 
         /*move in X-axis*/
         var autoMove = function () {
-            
+
             /*set X-axis limits for horizontal movement*/
             if (that.xPos < 0 || that.xPos + that.width > SCREEN_WIDTH) {
                 xVelocity *= -1;
@@ -836,23 +836,26 @@
             that.playDivElement.style.left = width / 2 - 100 + 'px';
             that.playDivElement.style.top = height / 2 - 25 + 'px';
 
-            that.playDivElement.style.backgroundColor = 'lightblue';
+            that.playDivElement.style.backgroundColor = '#7dc046';
+            
+            that.playDivElement.style.borderRadius = '50px';
 
             that.playDivElement.style.lineHeight = '50px';
             that.playDivElement.style.textAlign = 'center';
             that.playDivElement.style.textTransformation = 'uppercase';
-            that.playDivElement.style.fontFamily = 'Ravie';
+            that.playDivElement.style.fontFamily = 'Candara';
             that.playDivElement.style.fontSize = '24px';
+            that.playDivElement.style.color = 'white';
 
             that.playDivElement.innerHTML = 'PLAY';
 
             that.playDivElement.onmouseover = function () {
                 that.playDivElement.style.cursor = 'pointer';
-                that.playDivElement.style.backgroundColor = 'blue';
+                that.playDivElement.style.backgroundColor = '#65a334';
             };
 
             that.playDivElement.onmouseout = function () {
-                that.playDivElement.style.backgroundColor = 'lightblue';
+                that.playDivElement.style.backgroundColor = '#7dc046';
             };
 
             that.element.appendChild(that.playDivElement);
@@ -872,20 +875,34 @@
 
                 scoreDiv.style.position = 'absolute';
 
-                scoreDiv.style.backgroundColor = 'lightblue';
+                scoreDiv.style.backgroundColor = '#7dc046';
+                //scoreDiv.style.backgroundImage = 'url("images/green-bg.png")';
+                //scoreDiv.style.backgroundRepeat = 'repeat-y repeat-x';
 
                 scoreDiv.style.lineHeight = '100px';
                 scoreDiv.style.textAlign = 'center';
                 scoreDiv.style.textTransformation = 'capitalize';
                 scoreDiv.style.fontFamily = 'Candara';
                 scoreDiv.style.fontSize = '18px';
+                scoreDiv.style.color = 'white';
+                
+                var scoreElement = document.createElement('div');
+                var highScoreElement = document.createElement('div');
+                
+                scoreElement.style.float = 'left';
+                
+                highScoreElement.style.float = 'right';
+                
+                scoreDiv.appendChild(scoreElement);
+                scoreDiv.appendChild(highScoreElement);
             }
 
-            scoreDiv.innerHTML = score;
+            scoreDiv.children[0].innerHTML = 'Your Score: '+score;
+            scoreDiv.children[1].innerHTML = 'High Score: '+localStorage.getItem('highScore');
 
             that.element.appendChild(scoreDiv);
         };
-        
+
         /*display instructions for playing*/
         var appendInstructionsSheet = function () {
 
@@ -902,11 +919,13 @@
                 instructionsDiv.style.top = SCREEN_HEIGHT - 100 + 'px';
                 instructionsDiv.style.left = 0;
 
-                instructionsDiv.style.backgroundColor = 'lightblue';
+                instructionsDiv.style.backgroundColor = '#7dc046';
+                //instructionsDiv.style.backgroundImage = 'url("images/green-bg.png")';
 
                 instructionsDiv.style.textAlign = 'center';
                 instructionsDiv.style.fontFamily = 'Candara';
                 instructionsDiv.style.fontSize = '18px';
+                instructionsDiv.style.color = 'white';
             }
 
             instructionsDiv.innerHTML = '<strong>Instructions</strong><br/><br/>Press <strong>A</strong> to move <strong>Left</strong><br/>Press <strong>D</strong> to move <strong>Right</strong>';
@@ -945,7 +964,8 @@
 
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
-        gamePlatform.style.border = '1px solid black';
+        //gamePlatform.style.margin = '0 auto';
+        gamePlatform.style.border = '1px solid #7dc046';
 
 
         var gameDiv = document.createElement('div');
@@ -1138,14 +1158,14 @@
 
         /*reset game after game over*/
         var resetGameSetup = function () {
-            
+
             /*remove all child elements including player, platforms, background and villains*/
             if (gameDiv.hasChildNodes()) {
                 while (gameDiv.hasChildNodes()) {
                     gameDiv.removeChild(gameDiv.firstChild);
                 }
             }
-            
+
             /*reset all objects*/
             background.init();
             player.init();
@@ -1168,9 +1188,12 @@
 
         /*display menu*/
         var displayMenu = function () {
-            gameDiv.style.opacity = 0.5;
+            gameDiv.style.opacity = 0.2;
             if (isGameOver) {
-                gamePlay.appendScoreSheet('Your Score: ' + score.score);
+                if (score.score > localStorage.getItem('highScore')) {
+                    localStorage.setItem('highScore',score.score);
+                }
+                gamePlay.appendScoreSheet(score.score);
             }
             gamePlay.showMenu();
         };
