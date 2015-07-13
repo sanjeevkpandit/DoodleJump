@@ -568,26 +568,6 @@
             }
         };
 
-        var startRightJump = function () {
-            if (that.onGround) {
-                that.yVelocity = -20;
-                that.xVelocity = that.speed;
-                that.groundLevel = 600;
-                that.onGround = false;
-                that.isFalling = false;
-            }
-        };
-
-        var startLeftJump = function () {
-            if (that.onGround) {
-                that.yVelocity = -20;
-                that.xVelocity = -that.speed;
-                that.groundLevel = 600;
-                that.onGround = false;
-                that.isFalling = false;
-            }
-        };
-
         var endJump = function () {
             if (that.yVelocity < that.ySpeed / 2) {
                 that.yVelocity = that.ySpeed / 2;
@@ -993,7 +973,7 @@
                     if (Math.random() > 0.5) {
                         type = 'redVillain';
                     }
-                    createVillain(coOrd.xCord, coOrd.yCord - 50, type);                    //console.log('villain created', coOrd.xCord, coOrd.yCord - 50, type);
+                    createVillain(coOrd.xCord, coOrd.yCord - 50, type);
                 }
             }
         };
@@ -1110,12 +1090,9 @@
             };
         };
 
-        //var loopCounter = 0;
-
         var gameLoop = function () {
 
             if (!isGameOver) {
-                //loopCounter++;
 
                 if (player.isFalling) {
                     if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
