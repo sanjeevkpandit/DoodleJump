@@ -807,6 +807,60 @@
             that.element.appendChild(that.playDivElement);
         };
 
+        this.appendScoreSheet = function (score) {
+
+            var scoreDiv = document.getElementById('scoreCard');
+            if (scoreDiv === null) {
+                scoreDiv = document.createElement('div');
+
+                scoreDiv.setAttribute('id', 'scoreCard');
+
+                scoreDiv.style.width = SCREEN_WIDTH + 'px';
+                scoreDiv.style.height = '100px';
+
+                scoreDiv.style.position = 'absolute';
+
+                scoreDiv.style.backgroundColor = 'lightblue';
+
+                scoreDiv.style.lineHeight = '100px';
+                scoreDiv.style.textAlign = 'center';
+                scoreDiv.style.textTransformation = 'capitalize';
+                scoreDiv.style.fontFamily = 'Candara';
+                scoreDiv.style.fontSize = '18px';
+            }
+
+            scoreDiv.innerHTML = score;
+
+            that.element.appendChild(scoreDiv);
+        };
+        
+        var appendInstructionsSheet = function () {
+
+            var instructionsDiv = document.getElementById('instructionCard');
+            if (instructionsDiv === null) {
+                instructionsDiv = document.createElement('div');
+
+                instructionsDiv.setAttribute('id', 'instructionCard');
+
+                instructionsDiv.style.width = SCREEN_WIDTH + 'px';
+                instructionsDiv.style.height = '100px';
+
+                instructionsDiv.style.position = 'absolute';
+                instructionsDiv.style.top = SCREEN_HEIGHT - 100 + 'px';
+                instructionsDiv.style.left = 0;
+
+                instructionsDiv.style.backgroundColor = 'lightblue';
+
+                instructionsDiv.style.textAlign = 'center';
+                instructionsDiv.style.fontFamily = 'Candara';
+                instructionsDiv.style.fontSize = '18px';
+            }
+
+            instructionsDiv.innerHTML = '<strong>Instructions</strong><br/><br/>Press <strong>A</strong> to move <strong>Left</strong><br/>Press <strong>D</strong> to move <strong>Right</strong>';
+
+            that.element.appendChild(instructionsDiv);
+        };
+
         this.hideMenu = function () {
             that.element.style.display = 'none';
         };
@@ -816,6 +870,7 @@
         };
 
         appendStartMenu();
+        appendInstructionsSheet();
     };
 
 
@@ -834,7 +889,7 @@
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
         gamePlatform.style.border = '1px solid black';
-        
+
 
         var gameDiv = document.createElement('div');
 
@@ -845,7 +900,7 @@
         gameDiv.style.overflow = 'hidden';
 
         gamePlatform.appendChild(gameDiv);
-        
+
 
         var background = new Background();
         var player = new Player();
@@ -1027,7 +1082,7 @@
             villains = [];
 
             isGameOver = false;
-            
+
             gameSetup();
         };
 
@@ -1039,6 +1094,9 @@
 
         var displayMenu = function () {
             gameDiv.style.opacity = 0.5;
+            if (isGameOver) {
+                gamePlay.appendScoreSheet('Your Score: ' + score.score);
+            }
             gamePlay.showMenu();
         };
 
@@ -1097,12 +1155,6 @@
 
             gamePlaySetup();
 
-            //gamePlay.displayStartMenu();
-
-
-            //gameSetup();
-
-            //setTimeInterval = setInterval(gameLoop, interval);
         };
 
         init();
