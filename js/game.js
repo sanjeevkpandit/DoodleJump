@@ -439,7 +439,7 @@
             that.element.style.right = '0px';
             that.element.style.textAlign = 'left';
             that.element.style.backgroundColor = 'grey';
-            that.element.style.fontFamily = 'Candara';
+            //that.element.style.fontFamily = 'Candara';
             that.element.style.fontSize = '16px';
             that.element.style.fontWeight = 'bold';
             that.element.style.color = 'white';
@@ -843,7 +843,7 @@
             that.playDivElement.style.lineHeight = '50px';
             that.playDivElement.style.textAlign = 'center';
             that.playDivElement.style.textTransformation = 'uppercase';
-            that.playDivElement.style.fontFamily = 'Candara';
+            //that.playDivElement.style.fontFamily = 'Candara';
             that.playDivElement.style.fontSize = '24px';
             that.playDivElement.style.color = 'white';
 
@@ -882,7 +882,7 @@
                 scoreDiv.style.lineHeight = '100px';
                 scoreDiv.style.textAlign = 'center';
                 scoreDiv.style.textTransformation = 'capitalize';
-                scoreDiv.style.fontFamily = 'Candara';
+                //scoreDiv.style.fontFamily = 'Candara';
                 scoreDiv.style.fontSize = '18px';
                 scoreDiv.style.color = 'white';
                 
@@ -923,7 +923,7 @@
                 //instructionsDiv.style.backgroundImage = 'url("images/green-bg.png")';
 
                 instructionsDiv.style.textAlign = 'center';
-                instructionsDiv.style.fontFamily = 'Candara';
+                //instructionsDiv.style.fontFamily = 'Candara';
                 instructionsDiv.style.fontSize = '18px';
                 instructionsDiv.style.color = 'white';
             }
