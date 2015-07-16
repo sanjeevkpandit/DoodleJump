@@ -134,6 +134,61 @@
     };
 
 
+    /*Sounds*/
+    var Sounds = function () {
+        
+        var that = this;
+        
+        this.sound = new Audio();
+        this.sound.loop = false;
+        
+        var soundFiles = [
+            'sounds/start.wav',
+            'sounds/jump.wav',
+            'sounds/feder.mp3',
+            'sounds/jumponvillain.mp3',
+            'sounds/finish.mp3',
+            'sounds/allsounds.mp3'
+        ];
+
+        var playSoundFile = function (soundFile) {
+            that.sound.src = soundFile;
+            that.sound.play();
+        };
+        
+        this.pauseAudio = function(){
+            
+        };
+
+        this.playSound = function (command) {
+
+            switch (command) {
+                case 'play':
+                    playSoundFile(soundFiles[0]);
+                    break;
+                case 'jump':
+                    playSoundFile(soundFiles[1]);
+                    break;
+                case 'jumpOnVillain':
+                    playSoundFile(soundFiles[3]);
+                    break;
+                case 'jumpOnSpring':
+                    playSoundFile(soundFiles[2]);
+                    break;
+                case 'finish':
+                    playSoundFile(soundFiles[4]);
+                    break;
+                case 'background':
+                    playSoundFile(soundFiles[5]);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+    };
+
+
     /*Collision Detection of Two Objects*/
     var Collision = function () {
 
@@ -300,7 +355,6 @@
 
             that.element.appendChild(sprite.element);
         }
-        ;
 
         /*Update the spring sprite/image on top collision with player*/
         this.changeSpringSprite = function () {
@@ -389,7 +443,7 @@
 
             for (var i = 0; i < platforms.length; i++) {
                 if (collision.checkTopCollision(player.animation, platforms[i])) {
-
+                    
                     player.animation.resetYValueAfterCollision(platforms[i].yPos);
                     player.groundLevel = platforms[i].yPos;
                     player.yVelocity = 0;
@@ -502,6 +556,7 @@
         this.isFalling;
         this.groundLevel;
         this.gravity;
+        var sounds = null;
 
         /*Initialize or reset the player*/
         this.init = function () {
@@ -552,6 +607,8 @@
             that.isFalling = true;
             that.groundLevel = SCREEN_HEIGHT;
             that.gravity = 0.5;
+            
+            sounds = new Sounds();
         };
 
         /*move*/
@@ -560,11 +617,11 @@
             that.ySpeed = -25;
 
             if (that.platformType === 'spring') {
+                //sounds.playSound('jumpOnSpring');
                 that.ySpeed = -100;
                 that.isUntouchable = true;
                 that.groundLevel = SCREEN_HEIGHT;
             }
-
             that.startJump();
 
             window.onkeypress = function (event) {
@@ -618,6 +675,11 @@
                 that.groundLevel = SCREEN_HEIGHT + 200;
                 that.onGround = false;
                 that.isFalling = false;
+                if (that.platformType === 'spring') {
+                    sounds.playSound('jumpOnSpring');
+                } else {
+                    sounds.playSound('jump');
+                }
                 that.updateSpriteDuringCollision();
             } else {
                 updateDirection();
@@ -837,7 +899,7 @@
             that.playDivElement.style.top = height / 2 - 25 + 'px';
 
             that.playDivElement.style.backgroundColor = '#7dc046';
-            
+
             that.playDivElement.style.borderRadius = '50px';
 
             that.playDivElement.style.lineHeight = '50px';
@@ -885,20 +947,20 @@
                 //scoreDiv.style.fontFamily = 'Candara';
                 scoreDiv.style.fontSize = '18px';
                 scoreDiv.style.color = 'white';
-                
+
                 var scoreElement = document.createElement('div');
                 var highScoreElement = document.createElement('div');
-                
+
                 scoreElement.style.float = 'left';
-                
+
                 highScoreElement.style.float = 'right';
-                
+
                 scoreDiv.appendChild(scoreElement);
                 scoreDiv.appendChild(highScoreElement);
             }
 
-            scoreDiv.children[0].innerHTML = 'Your Score: '+score;
-            scoreDiv.children[1].innerHTML = 'High Score: '+localStorage.getItem('highScore');
+            scoreDiv.children[0].innerHTML = 'Your Score: ' + score;
+            scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
 
             that.element.appendChild(scoreDiv);
         };
@@ -964,7 +1026,8 @@
 
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
-        //gamePlatform.style.margin = '0 auto';
+        gamePlatform.style.position = 'relative';
+        gamePlatform.style.margin = '0 auto';
         gamePlatform.style.border = '1px solid #7dc046';
 
 
@@ -984,6 +1047,7 @@
         var extraClass = new ExtraClass();
         var score = new Score();
         var gamePlay = new GamePlay();
+        var sounds = new Sounds();
 
         var platforms = [];
         var villains = [];
@@ -993,7 +1057,7 @@
         /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
             var platform = new Platform(xPos, yPos, 'standard');
-            if (Math.random() < 0.01) {
+            if (Math.random() < 0.21) {
                 platform = new Platform(xPos, yPos, 'spring');
             } else if (Math.random() < 0.25) {
                 platform = new Platform(xPos, yPos, 'moving');
@@ -1125,9 +1189,11 @@
                 if (collisionStatusIndex === 'collided') {
                     if (player.isUntouchable === false) {
                         isGameOver = true;
+                        sounds.playSound('finish');
                     }
                 } else {
                     if (player.isFalling) {
+                        sounds.playSound('jumpOnVillain');
                         villains[collisionStatusIndex].isDead = true;
                         player.groundLevel = villains[collisionStatusIndex].yPos;
                         score.updateScore(villains[collisionStatusIndex].type);
@@ -1139,7 +1205,6 @@
         /*game over*/
         var gameOver = function () {
             clearTimeout(setTimeInterval);
-            console.log('Game Over');
             alert('Game Over\nScore: ' + score.score);
             displayMenu();
         };
@@ -1188,24 +1253,33 @@
 
         /*display menu*/
         var displayMenu = function () {
+            
             gameDiv.style.opacity = 0.2;
             if (isGameOver) {
+                
                 if (score.score > localStorage.getItem('highScore')) {
-                    localStorage.setItem('highScore',score.score);
+                    localStorage.setItem('highScore', score.score);
                 }
                 gamePlay.appendScoreSheet(score.score);
             }
+            
+            sounds.playSound('background');
             gamePlay.showMenu();
         };
 
         /*setup game*/
         var gamePlaySetup = function () {
+            sounds.playSound('background');
+            sounds.sound.loop = true;
 
             gamePlatform.appendChild(gamePlay.element);
 
             gamePlay.playDivElement.onclick = function () {
                 gamePlay.hideMenu();
+                sounds.playSound('play');
+                sounds.sound.loop = false;
                 displayGame();
+                sounds.sound.pause();
             };
         };
 
@@ -1216,7 +1290,7 @@
 
                 if (player.isFalling) {
                     if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
-
+                        
                     }
                 }
 
@@ -1240,6 +1314,7 @@
 
                 if (player.yPos >= SCREEN_HEIGHT) {
                     isGameOver = true;
+                    sounds.playSound('finish');
                 }
 
             } else {
