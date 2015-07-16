@@ -136,12 +136,12 @@
 
     /*Sounds*/
     var Sounds = function () {
-        
+
         var that = this;
-        
+
         this.sound = new Audio();
         this.sound.loop = false;
-        
+
         var soundFiles = [
             'sounds/start.wav',
             'sounds/jump.wav',
@@ -155,31 +155,39 @@
             that.sound.src = soundFile;
             that.sound.play();
         };
-        
-        this.pauseAudio = function(){
-            
-        };
 
         this.playSound = function (command) {
 
             switch (command) {
                 case 'play':
-                    playSoundFile(soundFiles[0]);
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[0]);
+                    }
                     break;
                 case 'jump':
-                    playSoundFile(soundFiles[1]);
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[1]);
+                    }
                     break;
                 case 'jumpOnVillain':
-                    playSoundFile(soundFiles[3]);
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[3]);
+                    }
                     break;
                 case 'jumpOnSpring':
-                    playSoundFile(soundFiles[2]);
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[2]);
+                    }
                     break;
                 case 'finish':
-                    playSoundFile(soundFiles[4]);
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[4]);
+                    }
                     break;
                 case 'background':
-                    playSoundFile(soundFiles[5]);
+                    if (localStorage.getItem('sound') === 'on') {
+                        playSoundFile(soundFiles[5]);
+                    }
                     break;
                 default:
                     break;
@@ -443,7 +451,7 @@
 
             for (var i = 0; i < platforms.length; i++) {
                 if (collision.checkTopCollision(player.animation, platforms[i])) {
-                    
+
                     player.animation.resetYValueAfterCollision(platforms[i].yPos);
                     player.groundLevel = platforms[i].yPos;
                     player.yVelocity = 0;
@@ -607,7 +615,7 @@
             that.isFalling = true;
             that.groundLevel = SCREEN_HEIGHT;
             that.gravity = 0.5;
-            
+
             sounds = new Sounds();
         };
 
@@ -874,20 +882,117 @@
     var GamePlay = function () {
         var that = this;
 
-        this.element = document.createElement('div');
+        this.mainElement = document.createElement('div');
+
+        var element = document.createElement('div');
+        var musicOptionsElement = document.createElement('div');
 
         this.playDivElement = document.createElement('div');
+        this.optionElement = document.createElement('div');
 
         var width = SCREEN_WIDTH;
         var height = SCREEN_HEIGHT;
 
-        this.element.style.width = width + 'px';
-        this.element.style.height = height + 'px';
+        /*set property for inner elements*/
+        var setPropertyForInnerElements = function (el) {
+            el.style.width = width + 'px';
+            el.style.height = height + 'px';
 
-        this.element.style.position = 'absolute';
-        this.element.style.top = '0px';
-        this.element.style.left = '0px';
-        this.element.style.zIndex = 3;
+            el.style.position = 'absolute';
+            el.style.top = '0px';
+            el.style.left = '0px';
+            el.style.zIndex = 3;
+        };
+
+        /*set property for music and sound options menu*/
+        var setPropertyForMusciSoundOptions = function () {
+            var el = document.createElement('div');
+            el.style.width = '300px';
+            el.style.height = '50px';
+
+            el.style.padding = '5px';
+
+            el.style.position = 'absolute';
+            el.style.left = width / 2 - 150 + 'px';
+
+            el.style.backgroundColor = '#7dc046';
+
+            return el;
+
+        };
+
+        /*set property for MusicSound inner elements*/
+        var setPropertyForMusicOptionsInnerElement = function (float) {
+            var el = document.createElement('div');
+
+            el.style.lineHeight = '50px';
+            el.style.textAlign = 'center';
+            el.style.textTransform = 'uppercase';
+            el.style.fontSize = '24px';
+            el.style.color = 'white';
+
+            el.style.float = float;
+
+            return el;
+        };
+
+        /*create div for toggle options for on/off*/
+        var createToggleMusicSoundOptions = function (text) {
+
+            var el = document.createElement('div');
+
+            el.style.width = '50px';
+            el.style.height = '40px';
+            el.style.padding = '5px';
+
+            el.style.display = 'inline-block';
+
+            el.style.backgroundColor = '#e74c3c';
+
+            el.style.lineHeight = '40px';
+            el.style.textAlign = 'center';
+            el.style.textTransform = 'uppercase';
+            el.style.fontSize = '24px';
+            el.style.color = 'white';
+
+            el.innerHTML = text;
+
+            el.onmouseover = function () {
+                el.style.cursor = 'pointer';
+            };
+
+            return el;
+        };
+
+        /*set click operation of toggle operations*/
+        var changeSettingsOnClick = function (el1, el2, target) {
+            el1.onclick = function () {
+                switch (target) {
+                    case 'musicOn':
+                        localStorage.setItem('music', 'on');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'musicOff':
+                        localStorage.setItem('music', 'off');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'soundOn':
+                        localStorage.setItem('sound', 'on');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'soundOff':
+                        localStorage.setItem('sound', 'off');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    default:
+                        break;
+                }
+            };
+        };
 
         /*display "PLAY" option before and after game*/
         var appendStartMenu = function () {
@@ -905,7 +1010,6 @@
             that.playDivElement.style.lineHeight = '50px';
             that.playDivElement.style.textAlign = 'center';
             that.playDivElement.style.textTransformation = 'uppercase';
-            //that.playDivElement.style.fontFamily = 'Candara';
             that.playDivElement.style.fontSize = '24px';
             that.playDivElement.style.color = 'white';
 
@@ -920,7 +1024,7 @@
                 that.playDivElement.style.backgroundColor = '#7dc046';
             };
 
-            that.element.appendChild(that.playDivElement);
+            element.appendChild(that.playDivElement);
         };
 
         /*display SCORESHEET after game over*/
@@ -936,33 +1040,44 @@
                 scoreDiv.style.height = '100px';
 
                 scoreDiv.style.position = 'absolute';
+                scoreDiv.style.top = '0px';
+                scoreDiv.style.left = '0px';
 
                 scoreDiv.style.backgroundColor = '#7dc046';
-                //scoreDiv.style.backgroundImage = 'url("images/green-bg.png")';
-                //scoreDiv.style.backgroundRepeat = 'repeat-y repeat-x';
 
                 scoreDiv.style.lineHeight = '100px';
                 scoreDiv.style.textAlign = 'center';
                 scoreDiv.style.textTransformation = 'capitalize';
-                //scoreDiv.style.fontFamily = 'Candara';
                 scoreDiv.style.fontSize = '18px';
                 scoreDiv.style.color = 'white';
 
                 var scoreElement = document.createElement('div');
                 var highScoreElement = document.createElement('div');
+                var gameTitle = document.createElement('div');
 
                 scoreElement.style.float = 'left';
+                scoreElement.style.paddingLeft = '5px';
 
                 highScoreElement.style.float = 'right';
+                highScoreElement.style.paddingRight = '5px';
+
+                gameTitle.style.fontSize = '24px';
+                gameTitle.style.fontWeight = 'bold';
 
                 scoreDiv.appendChild(scoreElement);
                 scoreDiv.appendChild(highScoreElement);
+                scoreDiv.appendChild(gameTitle);
             }
 
-            scoreDiv.children[0].innerHTML = 'Your Score: ' + score;
-            scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
+            if (score !== null) {
+                scoreDiv.children[2].innerHTML = '';
+                scoreDiv.children[0].innerHTML = 'Your Score: ' + score;
+                scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
+            } else {
+                scoreDiv.children[2].innerHTML = 'DOODLE JUMP';
+            }
 
-            that.element.appendChild(scoreDiv);
+            that.mainElement.appendChild(scoreDiv);
         };
 
         /*display instructions for playing*/
@@ -992,22 +1107,180 @@
 
             instructionsDiv.innerHTML = '<strong>Instructions</strong><br/><br/>Press <strong>A</strong> to move <strong>Left</strong><br/>Press <strong>D</strong> to move <strong>Right</strong>';
 
-            that.element.appendChild(instructionsDiv);
+            that.mainElement.appendChild(instructionsDiv);
+        };
+
+        /*options for sound and music*/
+        var appendOptionsMenu = function () {
+
+            that.optionElement.style.width = '200px';
+            that.optionElement.style.height = '50px';
+
+            that.optionElement.style.position = 'absolute';
+            that.optionElement.style.left = width / 2 - 100 + 'px';
+            that.optionElement.style.top = height / 2 + 40 + 'px';
+
+            that.optionElement.style.backgroundColor = '#7dc046';
+
+            that.optionElement.style.borderRadius = '50px';
+
+            that.optionElement.style.lineHeight = '50px';
+            that.optionElement.style.textAlign = 'center';
+            that.optionElement.style.fontSize = '24px';
+            that.optionElement.style.color = 'white';
+
+            that.optionElement.innerHTML = 'OPTIONS';
+
+            that.optionElement.onmouseover = function () {
+                that.optionElement.style.cursor = 'pointer';
+                that.optionElement.style.backgroundColor = '#65a334';
+            };
+
+            that.optionElement.onmouseout = function () {
+                that.optionElement.style.backgroundColor = '#7dc046';
+            };
+
+            element.appendChild(that.optionElement);
+
+        };
+
+        /*display back options in music/sound options*/
+        var appendBackDivInMusicSoundOptions = function () {
+            var backDiv = document.createElement('div');
+            backDiv.style.width = '100px';
+            backDiv.style.padding = '5px';
+
+            backDiv.style.position = 'absolute';
+            backDiv.style.top = '110px';
+            backDiv.style.left = '0px';
+
+            backDiv.style.backgroundColor = '#7dc046';
+
+            backDiv.style.lineHeight = '30px';
+            backDiv.style.textAlign = 'center';
+            backDiv.style.textTransformation = 'capitalize';
+            backDiv.style.fontSize = '24px';
+            backDiv.style.color = 'white';
+
+            backDiv.innerHTML = 'BACK';
+
+            backDiv.onmouseover = function () {
+                backDiv.style.cursor = 'pointer';
+                backDiv.style.backgroundColor = '#65a334';
+            };
+
+            backDiv.onmouseout = function () {
+                backDiv.style.backgroundColor = '#7dc046';
+            };
+
+            backDiv.onclick = function () {
+                that.showPlayMenu();
+            };
+
+            musicOptionsElement.appendChild(backDiv);
+        };
+
+        /*sound and music options*/
+        var appendMusicOptionsMenuDiv = function () {
+
+            var musicOptElement = setPropertyForMusciSoundOptions();
+            var soundOptElement = setPropertyForMusciSoundOptions();
+
+            musicOptElement.style.top = height / 2 - 25 + 'px';
+
+            soundOptElement.style.top = height / 2 + 40 + 'px';
+
+            var musicInnerElementLeft = setPropertyForMusicOptionsInnerElement('left');
+            var musicInnerElementRight = setPropertyForMusicOptionsInnerElement('right');
+
+            musicInnerElementLeft.innerHTML = 'Music';
+
+            var musicOnElement = createToggleMusicSoundOptions('on');
+            var musicOffElement = createToggleMusicSoundOptions('off');
+
+            if (localStorage.getItem('music') === 'on') {
+                musicOnElement.style.backgroundColor = '#3498db';
+            } else {
+                musicOffElement.style.backgroundColor = '#3498db';
+            }
+
+            changeSettingsOnClick(musicOnElement, musicOffElement, 'musicOn');
+            changeSettingsOnClick(musicOffElement, musicOnElement, 'musicOff');
+
+            musicInnerElementRight.appendChild(musicOnElement);
+            musicInnerElementRight.appendChild(musicOffElement);
+
+            musicOptElement.appendChild(musicInnerElementLeft);
+            musicOptElement.appendChild(musicInnerElementRight);
+
+
+            var soundInnerElementLeft = setPropertyForMusicOptionsInnerElement('left');
+            var soundInnerElementRight = setPropertyForMusicOptionsInnerElement('right');
+
+            soundInnerElementLeft.innerHTML = 'Sound';
+
+            var soundOnElement = createToggleMusicSoundOptions('on');
+            var soundOffElement = createToggleMusicSoundOptions('off');
+
+            if (localStorage.getItem('sound') === 'on') {
+                soundOnElement.style.backgroundColor = '#3498db';
+            } else {
+                soundOffElement.style.backgroundColor = '#3498db';
+            }
+
+            changeSettingsOnClick(soundOnElement, soundOffElement, 'soundOn');
+            changeSettingsOnClick(soundOffElement, soundOnElement, 'soundOff');
+
+            soundInnerElementRight.appendChild(soundOnElement);
+            soundInnerElementRight.appendChild(soundOffElement);
+
+            soundOptElement.appendChild(soundInnerElementLeft);
+            soundOptElement.appendChild(soundInnerElementRight);
+
+            appendBackDivInMusicSoundOptions();
+            musicOptionsElement.appendChild(musicOptElement);
+            musicOptionsElement.appendChild(soundOptElement);
         };
 
         /*hide menu for playing game*/
         this.hideMenu = function () {
-            that.element.style.display = 'none';
+            that.mainElement.style.display = 'none';
         };
 
         /*display menu before and after playing game*/
         this.showMenu = function () {
-            that.element.style.display = 'block';
+            that.mainElement.style.display = 'block';
+        };
+
+        /*display music and sound options*/
+        this.showOptionsMenu = function () {
+            element.style.display = 'none';
+            musicOptionsElement.style.display = 'block';
+            appendMusicOptionsMenuDiv();
+        };
+
+        /*display play game option*/
+        this.showPlayMenu = function () {
+            musicOptionsElement.style.display = 'none';
+            element.style.display = 'block';
         };
 
         /*display play menu and instruction sheet*/
-        appendStartMenu();
-        appendInstructionsSheet();
+        var init = function () {
+            setPropertyForInnerElements(element);
+
+            musicOptionsElement.style.display = 'none';
+
+            appendStartMenu();
+            appendOptionsMenu();
+            that.appendScoreSheet(null);
+            appendInstructionsSheet();
+
+            that.mainElement.appendChild(element);
+            that.mainElement.appendChild(musicOptionsElement);
+        };
+
+        init();
     };
 
 
@@ -1057,7 +1330,7 @@
         /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
             var platform = new Platform(xPos, yPos, 'standard');
-            if (Math.random() < 0.21) {
+            if (Math.random() < 0.01) {
                 platform = new Platform(xPos, yPos, 'spring');
             } else if (Math.random() < 0.25) {
                 platform = new Platform(xPos, yPos, 'moving');
@@ -1253,16 +1526,16 @@
 
         /*display menu*/
         var displayMenu = function () {
-            
+
             gameDiv.style.opacity = 0.2;
             if (isGameOver) {
-                
+
                 if (score.score > localStorage.getItem('highScore')) {
                     localStorage.setItem('highScore', score.score);
                 }
                 gamePlay.appendScoreSheet(score.score);
             }
-            
+
             sounds.playSound('background');
             gamePlay.showMenu();
         };
@@ -1272,7 +1545,7 @@
             sounds.playSound('background');
             sounds.sound.loop = true;
 
-            gamePlatform.appendChild(gamePlay.element);
+            gamePlatform.appendChild(gamePlay.mainElement);
 
             gamePlay.playDivElement.onclick = function () {
                 gamePlay.hideMenu();
@@ -1280,6 +1553,10 @@
                 sounds.sound.loop = false;
                 displayGame();
                 sounds.sound.pause();
+            };
+
+            gamePlay.optionElement.onclick = function () {
+                gamePlay.showOptionsMenu();
             };
         };
 
@@ -1290,7 +1567,7 @@
 
                 if (player.isFalling) {
                     if (!extraClass.checkCollisionOfPlayerPlatforms(player, platforms)) {
-                        
+
                     }
                 }
 
@@ -1325,7 +1602,20 @@
 
         /*initialize*/
         var init = function () {
+            
+            /*setup local storage values*/
+            if (localStorage.getItem('music') === null) {
+                localStorage.setItem('music', 'on');
+            }
+            if (localStorage.getItem('sound') === null) {
+                localStorage.setItem('sound', 'on');
+            }
 
+            if (localStorage.getItem('highScore') === null) {
+                localStorage.setItem('highScore', 0);
+            }
+            
+            /*game setup*/
             gamePlaySetup();
 
         };
