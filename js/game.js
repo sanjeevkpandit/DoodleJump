@@ -1250,6 +1250,32 @@
             musicOptionsElement.appendChild(musicOptElement);
             musicOptionsElement.appendChild(soundOptElement);
         };
+        
+        /*game over menu*/
+        this.displayGameOver = function(){
+            
+            var gameOverDiv = document.createElement('div');
+            
+            gameOverDiv.style.width = '200px';
+            gameOverDiv.style.height = '50px';
+
+            gameOverDiv.style.position = 'absolute';
+            gameOverDiv.style.left = width / 2 - 100 + 'px';
+            gameOverDiv.style.top = height / 2 - 150 + 'px';
+
+            gameOverDiv.style.backgroundColor = '#e74c3c';
+            
+            gameOverDiv.style.borderRadius = '50px';
+
+            gameOverDiv.style.lineHeight = '50px';
+            gameOverDiv.style.textAlign = 'center';
+            gameOverDiv.style.fontSize = '24px';
+            gameOverDiv.style.color = 'white';
+
+            gameOverDiv.innerHTML = 'GAME OVER';
+
+            element.appendChild(gameOverDiv);
+        };
 
         /*hide menu for playing game*/
         this.hideMenu = function () {
@@ -1487,8 +1513,26 @@
         /*game over*/
         var gameOver = function () {
             clearTimeout(setTimeInterval);
-            alert('Game Over\nScore: ' + score.score);
-            displayMenu();
+            
+            var opacity = 1;
+            var opacity2 = 0.0;
+            
+            var timeInt = setInterval(
+                    function(){
+                        opacity -= 0.1;
+                        if (opacity <= 0.2) {
+                            opacity2 += 0.1;
+                            gamePlay.mainElement.style.opacity = opacity2;
+                            gamePlay.displayGameOver();
+                            displayMenu();
+                            
+                            if (opacity2 >= 1) {
+                                clearInterval(timeInt);
+                            }
+                        } else {
+                            gameDiv.style.opacity = opacity;
+                        }
+                    },50);
         };
 
         /*setup game before play*/
@@ -1536,7 +1580,7 @@
         /*display menu*/
         var displayMenu = function () {
 
-            gameDiv.style.opacity = 0.2;
+            //gameDiv.style.opacity = 0.2;
             if (isGameOver) {
 
                 if (score.score > localStorage.getItem('highScore')) {
