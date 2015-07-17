@@ -564,7 +564,8 @@
         this.isFalling;
         this.groundLevel;
         this.gravity;
-        var sounds = null;
+        
+        var sounds = new Sounds();
 
         /*Initialize or reset the player*/
         this.init = function () {
@@ -616,7 +617,6 @@
             that.groundLevel = SCREEN_HEIGHT;
             that.gravity = 0.5;
 
-            sounds = new Sounds();
         };
 
         /*move*/
@@ -879,7 +879,7 @@
 
 
     /*Game Menu before and after playing game*/
-    var GamePlay = function () {
+    var GamePlay = function (sounds) {
         var that = this;
 
         this.mainElement = document.createElement('div');
@@ -980,11 +980,13 @@
                         break;
                     case 'soundOn':
                         localStorage.setItem('sound', 'on');
+                        sounds.playSound('background');
                         el1.style.backgroundColor = '#3498db';
                         el2.style.backgroundColor = '#e74c3c';
                         break;
                     case 'soundOff':
                         localStorage.setItem('sound', 'off');
+                        sounds.sound.pause();
                         el1.style.backgroundColor = '#3498db';
                         el2.style.backgroundColor = '#e74c3c';
                         break;
@@ -1045,7 +1047,7 @@
 
                 scoreDiv.style.backgroundColor = '#7dc046';
 
-                scoreDiv.style.lineHeight = '100px';
+                //scoreDiv.style.lineHeight = '100px';
                 scoreDiv.style.textAlign = 'center';
                 scoreDiv.style.textTransformation = 'capitalize';
                 scoreDiv.style.fontSize = '18px';
@@ -1054,6 +1056,15 @@
                 var scoreElement = document.createElement('div');
                 var highScoreElement = document.createElement('div');
                 var gameTitle = document.createElement('div');
+
+                gameTitle.style.width = SCREEN_WIDTH+'px';
+                gameTitle.style.lineHeight = '40px';
+                gameTitle.style.position = 'absolute';
+                gameTitle.style.top = '40px';
+                gameTitle.style.display = 'block';
+                gameTitle.style.left = '0px';
+
+                scoreElement.style.lineHight = highScoreElement.style.lineHight = '75px';
 
                 scoreElement.style.float = 'left';
                 scoreElement.style.paddingLeft = '5px';
@@ -1070,12 +1081,10 @@
             }
 
             if (score !== null) {
-                scoreDiv.children[2].innerHTML = '';
                 scoreDiv.children[0].innerHTML = 'Your Score: ' + score;
                 scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
-            } else {
-                scoreDiv.children[2].innerHTML = 'DOODLE JUMP';
             }
+            scoreDiv.children[2].innerHTML = 'DOODLE JUMP';
 
             that.mainElement.appendChild(scoreDiv);
         };
@@ -1316,11 +1325,11 @@
 
 
         var background = new Background();
+        var sounds = new Sounds();
         var player = new Player();
         var extraClass = new ExtraClass();
         var score = new Score();
-        var gamePlay = new GamePlay();
-        var sounds = new Sounds();
+        var gamePlay = new GamePlay(sounds);
 
         var platforms = [];
         var villains = [];
@@ -1330,7 +1339,7 @@
         /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
             var platform = new Platform(xPos, yPos, 'standard');
-            if (Math.random() < 0.01) {
+            if (Math.random() < 0.05) {
                 platform = new Platform(xPos, yPos, 'spring');
             } else if (Math.random() < 0.25) {
                 platform = new Platform(xPos, yPos, 'moving');
@@ -1602,7 +1611,7 @@
 
         /*initialize*/
         var init = function () {
-            
+
             /*setup local storage values*/
             if (localStorage.getItem('music') === null) {
                 localStorage.setItem('music', 'on');
@@ -1614,7 +1623,7 @@
             if (localStorage.getItem('highScore') === null) {
                 localStorage.setItem('highScore', 0);
             }
-            
+
             /*game setup*/
             gamePlaySetup();
 
