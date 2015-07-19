@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 
-
 ;
 (function () {
     'use strict';
@@ -148,7 +147,8 @@
             'sounds/feder.mp3',
             'sounds/jumponvillain.mp3',
             'sounds/finish.mp3',
-            'sounds/allsounds.mp3'
+            'sounds/allsounds.mp3',
+            'sounds/jetpack.mp3'
         ];
 
         var playSoundFile = function (soundFile) {
@@ -177,6 +177,11 @@
                 case 'jumpOnSpring':
                     if (localStorage.getItem('music') === 'on') {
                         playSoundFile(soundFiles[2]);
+                    }
+                    break;
+                case 'jetPackJump':
+                    if (localStorage.getItem('music') === 'on') {
+                        playSoundFile(soundFiles[6]);
                     }
                     break;
                 case 'finish':
@@ -230,8 +235,6 @@
     /*SpriteSheet foor player, enemy and blocks/platforms*/
     var Spritesheet = function () {
 
-        var that = this;
-
         /*Co-ordinates of sprites for player, enemies and platforms/blocks*/
         var coordinates = [
             {action: 'leftFace', coOrd: {x: 0, y: -202, w: 0, h: 0}},
@@ -245,7 +248,10 @@
             {action: 'blueBlock', coOrd: {x: -2, y: -63, w: 100, h: 26}},
             {action: 'whiteBlock', coOrd: {x: -2, y: -93, w: 100, h: 26}},
             {action: 'greenVillain', coOrd: {x: -175, y: -101, w: 82, h: 52}},
-            {action: 'redVillain', coOrd: {x: 0, y: -104, w: 47, h: 35}}
+            {action: 'redVillain', coOrd: {x: 0, y: -104, w: 47, h: 35}},
+            {action: 'jetPackStill', coOrd: {x: -3, y: -33, w: 24, h: 36}},
+            {action: 'jetPackLeft', coOrd: {x: -128, y: -33, w: 24, h: 62}},
+            {action: 'jetPackRight', coOrd: {x: -104, y: -33, w: 24, h: 62}}
         ];
 
         /*return required co-ordinates as per request*/
@@ -267,7 +273,7 @@
 
 
     /*Sprite Div for Player and Villains*/
-    var Sprite = function (command) {
+    var Sprite = function (command, imgSrc) {
 
         this.coOrds = new Spritesheet().getSpriteCoordinates(command);
 
@@ -278,6 +284,10 @@
         this.element.style.position = 'absolute';
 
         this.element.style.backgroundImage = 'url("images/doodle-sprites.png")';
+        if (imgSrc === 2) {
+            this.element.style.backgroundImage = 'url("images/doodle-sprites-2.png")';
+        }
+
         this.element.style.backgroundPositionX = this.coOrds.x + 'px';
         this.element.style.backgroundPositionY = this.coOrds.y + 'px';
 
@@ -326,7 +336,14 @@
                 /*Blue Block (Spring)*/
                 setSprite('blueBlock');
 
-                setSpringSprite('springDown');
+                setSpringSprite('springDown', 1);
+
+            } else if (that.type === 'jetPack') {
+
+                /*Blue Block (Spring)*/
+                setSprite('blueBlock');
+
+                setSpringSprite('jetPackStill', 2);
 
             } else if (that.type === 'moving') {
 
@@ -354,11 +371,11 @@
         }
 
         /*append spring to Blue(Spring) Block*/
-        function setSpringSprite(command) {
+        function setSpringSprite(command, imgSrc) {
 
-            var sprite = new Sprite(command);
+            var sprite = new Sprite(command, imgSrc);
 
-            sprite.element.style.left = sprite.coOrds.w / 2 + 'px';
+            sprite.element.style.left = that.width / 2 - sprite.coOrds.w / 2 + 'px';
             sprite.element.style.top = -sprite.coOrds.h + 'px';
 
             that.element.appendChild(sprite.element);
@@ -369,6 +386,10 @@
             if (that.type === 'spring') {
                 that.element.removeChild(that.element.childNodes[0]);
                 setSpringSprite('springUp');
+            }
+            if (that.type === 'jetPack') {
+                that.element.removeChild(that.element.childNodes[0]);
+//                setSpringSprite('springUp');
             }
         };
 
@@ -564,8 +585,10 @@
         this.isFalling;
         this.groundLevel;
         this.gravity;
-        
+
         var sounds = new Sounds();
+
+        var spriteJetPack;
 
         /*Initialize or reset the player*/
         this.init = function () {
@@ -614,9 +637,15 @@
 
             that.onGround = true;
             that.isFalling = true;
-            that.groundLevel = SCREEN_HEIGHT;
             that.gravity = 0.5;
+            that.resetGroundLevel();
 
+            spriteJetPack = null;
+
+        };
+
+        this.resetGroundLevel = function () {
+            that.groundLevel = SCREEN_HEIGHT + 200;
         };
 
         /*move*/
@@ -625,10 +654,14 @@
             that.ySpeed = -25;
 
             if (that.platformType === 'spring') {
-                //sounds.playSound('jumpOnSpring');
-                that.ySpeed = -100;
+                that.ySpeed = -75;
                 that.isUntouchable = true;
-                that.groundLevel = SCREEN_HEIGHT;
+                that.resetGroundLevel();
+            }
+            if (that.platformType === 'jetPack') {
+                that.ySpeed = -150;
+                that.isUntouchable = true;
+                that.resetGroundLevel();
             }
             that.startJump();
 
@@ -665,6 +698,34 @@
             }
         };
 
+        /*append jetPacks*/
+        var appendJetPacks = function () {
+
+            removeJetPacks();
+
+            if (that.direction === 'left') {
+
+                spriteJetPack = new Sprite('jetPackLeft', 2);
+                spriteJetPack.element.style.left = '43px';
+
+            } else if (that.direction === 'right') {
+
+                spriteJetPack = new Sprite('jetPackRight', 2);
+                spriteJetPack.element.style.left = '-18px';
+
+            }
+
+            spriteJetPack.element.style.top = '30px';
+            innerElement.appendChild(spriteJetPack.element);
+        };
+
+        /*remove jetpacks*/
+        var removeJetPacks = function () {
+            while (innerElement.hasChildNodes()) {
+                innerElement.removeChild(innerElement.firstChild);
+            }
+        };
+
         /*update sprite image after top collision with objects*/
         this.updateSpriteDuringCollision = function () {
             if (that.direction === 'left') {
@@ -685,6 +746,8 @@
                 that.isFalling = false;
                 if (that.platformType === 'spring') {
                     sounds.playSound('jumpOnSpring');
+                } else if (that.platformType === 'jetPack') {                    
+                    sounds.playSound('jetPackJump');
                 } else {
                     sounds.playSound('jump');
                 }
@@ -704,11 +767,19 @@
         /*update status*/
         this.updateFrame = function () {
 
+            /*in case of collision with jetPack*/
+            if (that.platformType === 'jetPack') {
+                appendJetPacks();
+            }
+
             that.yVelocity += that.gravity;
 
             if (that.yVelocity === 0) {
                 that.isFalling = true;
                 that.isUntouchable = false;
+                if (that.platformType === 'jetPack') {
+                    removeJetPacks();
+                }
                 that.platformType = 'standard';
             }
 
@@ -1057,7 +1128,7 @@
                 var highScoreElement = document.createElement('div');
                 var gameTitle = document.createElement('div');
 
-                gameTitle.style.width = SCREEN_WIDTH+'px';
+                gameTitle.style.width = SCREEN_WIDTH + 'px';
                 gameTitle.style.lineHeight = '40px';
                 gameTitle.style.position = 'absolute';
                 gameTitle.style.top = '40px';
@@ -1250,12 +1321,12 @@
             musicOptionsElement.appendChild(musicOptElement);
             musicOptionsElement.appendChild(soundOptElement);
         };
-        
+
         /*game over menu*/
-        this.displayGameOver = function(){
-            
+        this.displayGameOver = function () {
+
             var gameOverDiv = document.createElement('div');
-            
+
             gameOverDiv.style.width = '200px';
             gameOverDiv.style.height = '50px';
 
@@ -1264,7 +1335,7 @@
             gameOverDiv.style.top = height / 2 - 150 + 'px';
 
             gameOverDiv.style.backgroundColor = '#e74c3c';
-            
+
             gameOverDiv.style.borderRadius = '50px';
 
             gameOverDiv.style.lineHeight = '50px';
@@ -1364,10 +1435,15 @@
 
         /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
+            
             var platform = new Platform(xPos, yPos, 'standard');
-            if (Math.random() < 0.05) {
+
+            var randomNum = Math.random();
+            if (randomNum < 0.04) {
+                platform = new Platform(xPos, yPos, 'jetPack');
+            } else if (randomNum < 0.05) {
                 platform = new Platform(xPos, yPos, 'spring');
-            } else if (Math.random() < 0.25) {
+            } else if (randomNum < 0.25) {
                 platform = new Platform(xPos, yPos, 'moving');
             }
             gameDiv.appendChild(platform.element);
@@ -1399,10 +1475,10 @@
         var createPlatformsTemp = function () {
             platforms = [
                 new Platform(200, 500, 'standard'),
-                new Platform(200, 400, 'standard'),
+                new Platform(400, 400, 'standard'),
                 new Platform(0, 300, 'standard'),
                 new Platform(200, 200, 'standard'),
-                new Platform(200, 100, 'standard'),
+                new Platform(0, 100, 'standard'),
                 new Platform(400, 0, 'standard'),
                 new Platform(200, 0, 'standard')
             ];
@@ -1513,26 +1589,26 @@
         /*game over*/
         var gameOver = function () {
             clearTimeout(setTimeInterval);
-            
+
             var opacity = 1;
             var opacity2 = 0.0;
-            
+
             var timeInt = setInterval(
-                    function(){
+                    function () {
                         opacity -= 0.1;
                         if (opacity <= 0.2) {
                             opacity2 += 0.1;
                             gamePlay.mainElement.style.opacity = opacity2;
                             gamePlay.displayGameOver();
                             displayMenu();
-                            
+
                             if (opacity2 >= 1) {
                                 clearInterval(timeInt);
                             }
                         } else {
                             gameDiv.style.opacity = opacity;
                         }
-                    },50);
+                    }, 50);
         };
 
         /*setup game before play*/
