@@ -1214,7 +1214,7 @@
                 instructionsDiv.style.color = 'white';
             }
 
-            instructionsDiv.innerHTML = '<strong>Instructions</strong><br/><br/>Press <strong>A</strong> to move <strong>Left</strong><br/>Press <strong>D</strong> to move <strong>Right</strong>';
+            instructionsDiv.innerHTML = '<strong>Instructions</strong><br/><br/>Press/Tap <strong>&#8592;</strong> to move <strong>Left</strong><br/>Press/Tap <strong>&#8594;</strong> to move <strong>Right</strong>';
 
             that.mainElement.appendChild(instructionsDiv);
         };
@@ -1441,8 +1441,8 @@
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
         gamePlatform.style.position = 'relative';
-        gamePlatform.style.margin = '0 auto';
-
+        gamePlatform.style.margin = '10px auto';
+        gamePlatform.style.border = '1px solid #7dc046';
 
         var gameDiv = document.createElement('div');
 
@@ -1451,7 +1451,7 @@
         gameDiv.style.position = 'relative';
         gameDiv.style.opacity = 1;
         gameDiv.style.overflow = 'hidden';
-        gameDiv.style.border = '1px solid #7dc046';
+        
 
         gamePlatform.appendChild(gameDiv);
 
