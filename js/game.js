@@ -1,11 +1,4 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-;
-(function () {
+;(function () {
     'use strict';
 
 
@@ -21,7 +14,7 @@
 
         var that = this;
 
-        this.element;
+        this.element = null;
 
         var xPos, yPos;
 
@@ -299,14 +292,14 @@
 
         var that = this;
 
-        this.width, this.height;
+        this.width = this.height = 0;
 
-        this.type;
+        this.type = 'standard';
         var xVelocity;
 
-        this.xPos, this.yPos;
+        this.xPos = this.yPos = 0;
 
-        this.element;
+        this.element = null;
 
 
         /*initialize or reset the platform*/
@@ -389,7 +382,6 @@
             }
             if (that.type === 'jetPack') {
                 that.element.removeChild(that.element.childNodes[0]);
-//                setSpringSprite('springUp');
             }
         };
 
@@ -507,9 +499,9 @@
 
         var that = this;
 
-        this.element;
+        this.element = null;
 
-        this.score;
+        this.score = null;
 
         /*Initialize and reset the score*/
         this.init = function () {
@@ -557,34 +549,34 @@
     var Player = function () {
         var that = this;
 
-        this.width, this.height;
+        this.width = this.height = 0;
 
         var innerElementWidth, innerElementHeight;
 
-        this.yPos, this.xPos;
+        this.yPos = this.xPos = 0;
 
-        this.xVelocity, this.yVelocity;
+        this.xVelocity = this.yVelocity = 0;
 
         this.spriteCord = {};
 
-        this.speed, this.ySpeed;
-        this.direction;
-        this.platformType;
+        this.speed = this.ySpeed = 0;
+        this.direction = 'left';
+        this.platformType = 'standard';
 
-        this.isUntouchable;
+        this.isUntouchable = false;
 
-        this.element;
+        this.element = null;
         var innerElement;
 
-        this.animation;
+        this.animation = null;
 
-        this.spriteSheet;
-        this.spriteCord;
+        this.spriteSheet = null;
+        this.spriteCord = null;
 
-        this.onGround;
-        this.isFalling;
-        this.groundLevel;
-        this.gravity;
+        this.onGround = false;
+        this.isFalling = true;
+        this.groundLevel = 0;
+        this.gravity = 0;
 
         var sounds = new Sounds();
 
@@ -821,19 +813,19 @@
     var Villain = function (_xPos, _yPos, _type) {
         var that = this;
 
-        this.width, this.height;
+        this.width = this.height = 0;
 
-        this.xPos, this.yPos;
+        this.xPos = this.yPos = 0;
 
         this.type = _type;
 
         this.speed = 4;
 
-        this.isDead;
+        this.isDead = false;
 
         var xVelocity, yVelocity;
 
-        this.element;
+        this.element = null;
 
         /*initialize or reset the villain*/
         this.init = function () {
@@ -1453,7 +1445,7 @@
 
         /*destroy unwanted block/platform*/
         var destroyPlatform = function (platformIndex) {
-            platforms[platformIndex].element.remove();
+            platforms[platformIndex].element.parentNode.removeChild(platforms[platformIndex].element);
             platforms.splice(platformIndex, 1);
         };
 
@@ -1551,11 +1543,11 @@
                 }
 
                 //update blocks
-                for (var i = 0; i < platforms.length; i++) {
-                    if (platforms[i].yPos > 600) {
-                        destroyPlatform(i);
+                for (var j = 0; j < platforms.length; j++) {
+                    if (platforms[j].yPos > 600) {
+                        destroyPlatform(j);
                     } else {
-                        platforms[i].updateFrame(Math.abs(player.yVelocity));
+                        platforms[j].updateFrame(Math.abs(player.yVelocity));
                     }
                 }
 
@@ -1714,8 +1706,8 @@
                     }
                 }
 
-                for (var i = 0; i < villains.length; i++) {
-                    villains[i].updateFrameX();
+                for (var j = 0; j < villains.length; j++) {
+                    villains[j].updateFrameX();
                 }
 
                 if (player.yPos >= SCREEN_HEIGHT) {
