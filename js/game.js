@@ -1,12 +1,13 @@
-;(function () {
+;
+(function () {
     'use strict';
 
 
     var SCREEN_WIDTH = 400;
     var SCREEN_HEIGHT = 600;
 
-    var KEY_EVENT_KEY_LEFT = 97;
-    var KEY_EVENT_KEY_RIGHT = 100;
+    var KEY_EVENT_KEY_LEFT = 37;
+    var KEY_EVENT_KEY_RIGHT = 39;
 
 
     /*Background*/
@@ -532,9 +533,9 @@
             if (updateMessage === 'height') {
                 that.score += 1;
             } else if (updateMessage === 'redVillain') {
-                that.score += 10;
+                that.score += 100;
             } else if (updateMessage === 'greenVillain') {
-                that.score += 20;
+                that.score += 200;
             }
 
             render();
@@ -640,34 +641,42 @@
             that.groundLevel = SCREEN_HEIGHT + 200;
         };
 
+        this.moveDirection = function (direction) {
+            if (direction === 'left') {
+                that.xVelocity = -that.speed;
+                that.direction = 'left';
+            } else if (direction === 'right') {
+                that.xVelocity = that.speed;
+                that.direction = 'right';
+            }
+        };
+
         /*move*/
         var move = function () {
 
             that.ySpeed = -25;
 
             if (that.platformType === 'spring') {
-                that.ySpeed = -75;
+                that.ySpeed = -100;
                 that.isUntouchable = true;
                 that.resetGroundLevel();
             }
             if (that.platformType === 'jetPack') {
-                that.ySpeed = -150;
+                that.ySpeed = -160;
                 that.isUntouchable = true;
                 that.resetGroundLevel();
             }
             that.startJump();
 
-            window.onkeypress = function (event) {
+            window.onkeydown = function (event) {
 
                 var keyCode = event.which || event.keyCode;
 
                 if (keyCode === KEY_EVENT_KEY_LEFT) {
-                    that.xVelocity = -that.speed;
-                    that.direction = 'left';
+                    that.moveDirection('left');
                 }
                 if (keyCode === KEY_EVENT_KEY_RIGHT) {
-                    that.xVelocity = that.speed;
-                    that.direction = 'right';
+                    that.moveDirection('right');
                 }
             };
 
@@ -738,7 +747,7 @@
                 that.isFalling = false;
                 if (that.platformType === 'spring') {
                     sounds.playSound('jumpOnSpring');
-                } else if (that.platformType === 'jetPack') {                    
+                } else if (that.platformType === 'jetPack') {
                     sounds.playSound('jetPackJump');
                 } else {
                     sounds.playSound('jump');
@@ -1057,6 +1066,34 @@
                         break;
                 }
             };
+            el1.ontouchstart = function () {
+                switch (target) {
+                    case 'musicOn':
+                        localStorage.setItem('music', 'on');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'musicOff':
+                        localStorage.setItem('music', 'off');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'soundOn':
+                        localStorage.setItem('sound', 'on');
+                        sounds.playSound('background');
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    case 'soundOff':
+                        localStorage.setItem('sound', 'off');
+                        sounds.sound.pause();
+                        el1.style.backgroundColor = '#3498db';
+                        el2.style.backgroundColor = '#e74c3c';
+                        break;
+                    default:
+                        break;
+                }
+            };
         };
 
         /*display "PLAY" option before and after game*/
@@ -1145,9 +1182,9 @@
 
             if (score !== null) {
                 scoreDiv.children[0].innerHTML = 'Your Score: ' + score;
-                scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
             }
             scoreDiv.children[2].innerHTML = 'DOODLE JUMP';
+            scoreDiv.children[1].innerHTML = 'High Score: ' + localStorage.getItem('highScore');
 
             that.mainElement.appendChild(scoreDiv);
         };
@@ -1246,6 +1283,10 @@
             };
 
             backDiv.onclick = function () {
+                that.showPlayMenu();
+            };
+            
+            backDiv.ontouchstart = function () {
                 that.showPlayMenu();
             };
 
@@ -1394,12 +1435,13 @@
         this.height = SCREEN_HEIGHT;
 
         var gamePlatform = _gameDiv;
+        
+        var touchElemet = document.createElement('div');
 
         gamePlatform.style.width = that.width + 'px';
         gamePlatform.style.height = that.height + 'px';
         gamePlatform.style.position = 'relative';
         gamePlatform.style.margin = '0 auto';
-        gamePlatform.style.border = '1px solid #7dc046';
 
 
         var gameDiv = document.createElement('div');
@@ -1409,6 +1451,7 @@
         gameDiv.style.position = 'relative';
         gameDiv.style.opacity = 1;
         gameDiv.style.overflow = 'hidden';
+        gameDiv.style.border = '1px solid #7dc046';
 
         gamePlatform.appendChild(gameDiv);
 
@@ -1427,11 +1470,11 @@
 
         /*create new block/platform*/
         var createPlatform = function (xPos, yPos) {
-            
+
             var platform = new Platform(xPos, yPos, 'standard');
 
             var randomNum = Math.random();
-            if (randomNum < 0.04) {
+            if (randomNum < 0.01) {
                 platform = new Platform(xPos, yPos, 'jetPack');
             } else if (randomNum < 0.05) {
                 platform = new Platform(xPos, yPos, 'spring');
@@ -1603,6 +1646,51 @@
                     }, 50);
         };
 
+        /*touch options*/
+        var appendTouchOptions = function () {
+            var el = document.createElement('div');
+            el.style.width = SCREEN_WIDTH / 2 + 'px';
+            el.style.height = SCREEN_HEIGHT + 'px';
+            el.style.float = 'left';
+            el.style.position = 'absolute';
+            el.style.top = '0px';
+            el.style.left = '0px';
+            
+            el.ontouchstart = function(){
+                player.moveDirection('left');
+            };
+            el.onclick = function(){
+                player.moveDirection('left');
+            };
+
+            var el2 = document.createElement('div');
+            el2.style.width = SCREEN_WIDTH / 2 + 'px';
+            el2.style.height = SCREEN_HEIGHT + 'px';
+            el2.style.float = 'right';
+            el2.style.position = 'absolute';
+            el2.style.top = '0px';
+            el2.style.right = '0px';
+            
+            el2.ontouchstart = function(){
+                player.moveDirection('right');
+            };
+            el2.onclick = function(){
+                player.moveDirection('right');
+            };
+
+            touchElemet.appendChild(el);
+            touchElemet.appendChild(el2);
+
+            gamePlatform.appendChild(touchElemet);
+        };
+        
+        /*remove touch options*/
+        var removeTouchOptions = function(){
+            while(touchElemet.hasChildNodes()) {
+                touchElemet.removeChild(touchElemet.firstChild);
+            }
+        };
+
         /*setup game before play*/
         var gameSetup = function () {
 
@@ -1613,6 +1701,8 @@
             createPlatformsTemp();
 
             gameDiv.appendChild(player.element);
+
+            appendTouchOptions();
         };
 
         /*reset game after game over*/
@@ -1629,6 +1719,7 @@
             background.init();
             player.init();
             score.init();
+            removeTouchOptions();
             platforms = [];
             villains = [];
 

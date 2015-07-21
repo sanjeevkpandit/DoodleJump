@@ -10,7 +10,7 @@ and open the template in the editor.
 
 @font-face {
     font-family: Sansation;
-    src: url(../fonts/Sansation_Light.ttf);
+    src: url('../fonts/Sansation_Light.ttf');
 }
 
 body {
