@@ -1474,7 +1474,7 @@
             var platform = new Platform(xPos, yPos, 'standard');
 
             var randomNum = Math.random();
-            if (randomNum < 0.01) {
+            if (randomNum < 0.025) {
                 platform = new Platform(xPos, yPos, 'jetPack');
             } else if (randomNum < 0.05) {
                 platform = new Platform(xPos, yPos, 'spring');
