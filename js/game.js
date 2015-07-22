@@ -1719,7 +1719,6 @@
             background.init();
             player.init();
             score.init();
-            removeTouchOptions();
             platforms = [];
             villains = [];
 
@@ -1745,6 +1744,7 @@
                 if (score.score > localStorage.getItem('highScore')) {
                     localStorage.setItem('highScore', score.score);
                 }
+                removeTouchOptions();
                 gamePlay.appendScoreSheet(score.score);
             }
 
